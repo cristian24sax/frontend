@@ -1,0 +1,104 @@
+.container__login {
+  background: url("../../../assets/fondo.jpg") center/cover no-repeat;
+  margin: 0;
+  height: auto;
+  padding: 20px 60px;
+  padding-left: 28px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  display: flex;
+  gap: 42px;
+  flex-direction: column;
+  margin: 0;
+  background-color: transparent;
+}
+.h2 {
+  font-size: 18px;
+}
+.content {
+  background-color: #ffffff;
+  /* height: 50%; */
+  width: 40%;
+  border-radius: 10px;
+  margin: 0 auto -236px;
+  max-width: 450px;
+  /* min-height: 100vh; */
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  /* min-height: 515px; */
+  width: 100%;
+  padding: 60px 45px 40px;
+}
+.forget {
+  display: flex;
+  align-items: end;
+  justify-content: end;
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.forget:hover {
+  color: blue;
+}
+input {
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  height: 50px;
+  line-height: 50px;
+  padding: 16px 12px 14px;
+  background: #333;
+}
+button {
+  border: none;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  color: #333;
+  font-weight: 600;
+}
+button:hover {
+  background-color: #333;
+  color: #fff;
+}
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+form {
+  margin-top: 35px;
+}
+footer {
+  margin-top: 15px;
+}
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.message {
+  font-size: 25px;
+  color: white;
+  position: absolute;
+  left: 40px;
+  bottom: 0;
+}
+.message2 {
+  font-size: 25px;
+  color: white;
+  position: absolute;
+  right: 40px;
+  bottom: 0;
+}
+.input-register{
+  @apply w-[40px];
+}
