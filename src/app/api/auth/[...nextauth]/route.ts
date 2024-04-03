@@ -1,32 +1,33 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import axios from "axios"; // Importa axios
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "email", type: "email", placeholder: "test@test.com" },
+        email: { label: "Email", type: "email", placeholder: "test@test.com" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-            headers: { "Content-Type": "application/json" },
+        try {
+          // Utiliza axios para hacer la solicitud POST
+          const { data: user } = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
+            email: credentials?.email,
+            password: credentials?.password,
+          });
+
+          if (user.error) {
+            throw new Error(user.error);
           }
-        );
-        const user = await res.json();
-        console.log(user);
 
-        if (user.error) throw user;
-
-        return user;
+          // Si la autenticación es exitosa, retorna el objeto user
+          return user;
+        } catch (error) {
+          // Maneja cualquier error que ocurra durante la solicitud
+          console.error("Error de autenticación:", error);
+          return null;
+        }
       },
     }),
   ],

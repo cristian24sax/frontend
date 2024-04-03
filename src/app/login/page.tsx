@@ -7,8 +7,8 @@ import { useState } from "react";
 
 const LoginPage = () => {
   const [errors, setErrors] = useState<string[]>([]);
-  const [email, setEmail] = useState("admin@hotmail.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -39,10 +39,12 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-content">
             <div className="input">
-              <input type="email" placeholder="test@test.com" name="email" className="form-control mb-2" value={email} onChange={(event) => setEmail(event.target.value)} />
-              <input type="password" placeholder="123123" name="password" className="form-control mb-2" value={password} onChange={(event) => setPassword(event.target.value)} />
+              <input type="email" placeholder="Correo" name="email" className="form-control mb-2" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <input type="password" placeholder="Contraseña" name="password" className="form-control mb-2" value={password} onChange={(event) => setPassword(event.target.value)} />
             </div>
-            <div className="forget">Olvidaste tu contraseña</div>
+            <Link href="/recover">
+              <div className="forget">Olvidaste tu contraseña</div>
+            </Link>
           </div>
           <section className="button">
             <div className="container__login__actions mt-5">

@@ -7,9 +7,9 @@ import { useState } from "react";
 
 const RegisterPage = () => {
   const [errors, setErrors] = useState<string[]>([]);
-  const [firstName, setFisrtName] = useState<string>("cristian");
-  const [lastName, setLastName] = useState<string>("quispe");
-  const [username, setUsername] = useState<string>("quispe");
+  const [firstName, setFisrtName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [country, setCountry] = useState<number>(1);
@@ -27,10 +27,10 @@ const RegisterPage = () => {
       body: JSON.stringify({
         firstName,
         lastName,
-        username,
+        userName: username,
         email,
         password,
-        country,
+        countryId: country,
       }),
     });
 
@@ -56,26 +56,7 @@ const RegisterPage = () => {
 
     router.push("/dashboard");
   };
-  // const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   setErrors([]);
 
-  //   const responseNextAuth = await signIn("credentials", {
-  //     email,
-  //     password,
-  //     redirect: false,
-  //   });
-
-  //   if (responseNextAuth?.error) {
-  //     setErrors(responseNextAuth.error.split(","));
-  //     return;
-  //   }
-
-  //   router.push("/dashboard");
-  // };
-  const handleRedirect = () => {
-    router.push("/dashboard");
-  };
   return (
     <div className="container__login">
       <div className="content">
@@ -87,16 +68,16 @@ const RegisterPage = () => {
           <div className="form-content">
             <div className="input">
               <div className="flex flex-row gap-4">
-                <input type="text" placeholder="test" name="name" className="input-register" value={firstName} onChange={(event) => setFisrtName(event.target.value)} />
-                <input type="text" placeholder="123123" name="firstName" className="input-register" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+                <input type="text" placeholder="nombre" name="name" className="input-register" value={firstName} onChange={(event) => setFisrtName(event.target.value)} />
+                <input type="text" placeholder="apellido" name="firstName" className="input-register" value={lastName} onChange={(event) => setLastName(event.target.value)} />
               </div>
               <div className="flex flex-row gap-4">
-                <input type="text" placeholder="123123" name="lastName" className="input-register" value={username} onChange={(event) => setUsername(event.target.value)} />
-                <input type="email" placeholder="test@test.com" name="email" className="input-register" value={email} onChange={(event) => setEmail(event.target.value)} />
+                <input type="text" placeholder="username" name="username" className="input-register" value={username} onChange={(event) => setUsername(event.target.value)} />
+                <input type="email" placeholder="correo" name="email" className="input-register" value={email} onChange={(event) => setEmail(event.target.value)} />
               </div>
               <div className="flex flex-row gap-4">
-                <input type="password" placeholder="123123" name="password" className="input-register" value={password} onChange={(event) => setPassword(event.target.value)} />
-                <input type="text" placeholder="123123" name="country" className="input-register" value={country} onChange={(event) => setCountry(Number(event.target.value))} />
+                <input type="password" placeholder="contraseña" name="password" className="input-register" value={password} onChange={(event) => setPassword(event.target.value)} />
+                <input type="text" placeholder="country" name="country" className="input-register" value={country} onChange={(event) => setCountry(Number(event.target.value))} />
               </div>
             </div>
             <div className="forget">
@@ -121,8 +102,8 @@ const RegisterPage = () => {
         )}
       </div>
       {/* <p className="message">Tú aprendizaje es nuestro mayor objetivo</p> */}
-      <p className="message">Transformar vidas mediante el aprendizaje integral</p>
-      <p className="message2">Transformar la industria peruana en referente mundial</p>
+      {/* <p className="message">Transformar vidas mediante el aprendizaje integral</p>
+      <p className="message2">Transformar la industria peruana en referente mundial</p> */}
     </div>
   );
 };
