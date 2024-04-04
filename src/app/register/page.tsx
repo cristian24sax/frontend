@@ -102,8 +102,8 @@ const RegisterPage = () => {
         )}
       </div>
       {/* <p className="message">Tú aprendizaje es nuestro mayor objetivo</p> */}
-      {/* <p className="message">Transformar vidas mediante el aprendizaje integral</p>
-      <p className="message2">Transformar la industria peruana en referente mundial</p> */}
+      <p className="message">Transformar vidas mediante el aprendizaje integral</p>
+      <p className="message2">Transformar la industria peruana en referente mundial</p>
     </div>
   );
 };

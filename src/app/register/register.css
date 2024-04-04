@@ -82,11 +82,11 @@ footer {
 }
 .message {
   position: absolute;
-  @apply text-2xl text-white left-[40px] bottom-0;
+  @apply text-2xl text-white left-[40px] bottom-[24px];
 }
 .message2 {
   position: absolute;
-  @apply text-2xl text-white right-[40px] bottom-0;
+  @apply text-2xl text-white right-[40px] bottom-[24px];
 }
 .input-register {
   @apply w-[220px] text-[#b0b0b0];
