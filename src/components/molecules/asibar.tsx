@@ -15,7 +15,7 @@ interface Props {
 const AsideBar = ({ children }: Props) => {
   const menus = [
     {
-      name: "dashboard",
+      name: "Cursos",
       link: "/",
       icon: MdOutlineDashboard,
       submenus: [
