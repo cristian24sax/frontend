@@ -1,7 +1,8 @@
 "use client";
-import AsideBar from "@/components/asibar";
+import SesionComponent from "@/components/atoms/cardSesion";
+import SearchComponent from "@/components/atoms/search";
+import ListCoursesComponent from "@/components/molecules/listCourses";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
@@ -9,17 +10,18 @@ const Dashboard = () => {
   if (status === "loading") {
     return <p>Loading...</p>;
   }
-
+  console.log({ session });
   return (
-    <div className="wrapper">
-      <AsideBar />
-      <div>
-        <h1>Dashboard</h1>
-        <pre>
-          <code>{JSON.stringify(session, null, 2)}</code>
-        </pre>
+    <main className="w-full p-5">
+      <header className="shadow-sm sticky top-0 flex justify-between items-center  h-16 rounded-sm bg-stone-100 p-4">
+        <SearchComponent />
+        <SesionComponent />
+      </header>
+      <div className="my-5">
+        <h1>Lista de cursos</h1>
+        <ListCoursesComponent />
       </div>
-    </div>
+    </main>
   );
 };
 export default Dashboard;

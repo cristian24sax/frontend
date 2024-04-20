@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
+import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { InputComponent } from "@/components/atoms";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import { Country, DataCountry } from "@/interfaces/dataCountry";
+
 const RegisterPage = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [firstName, setFisrtName] = useState<string>("");
@@ -16,30 +18,24 @@ const RegisterPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [country, setCountry] = useState<number>(1);
-  const [data, setData] = useState(null); // Estado para almacenar la respuesta de la API
+  const [data, setData] = useState<Country>(); // Estado para almacenar la respuesta de la API
   const [error, setError] = useState(null); // Estado para almacenar cualquier error de la API
   const [isLoading, setIsLoading] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [valid, setValid] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [selectedCode, setSelectedCode] = useState("");
+  const [idCountry, SetIdCountry] = useState<number>();
+
+  // Manejar el cambio de selección
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCode(event.target.value);
+    const idcountry = data?.data?.find((item: DataCountry) => item.code_number === event.target.value);
+    SetIdCountry(idcountry?.id);
+    console.log(idcountry, "as");
+    setPhoneNumber("");
+  };
   const router = useRouter();
   // const data = await getData();
-  const handleChange = (value: any) => {
-    console.log({ value });
-    setPhoneNumber(value);
-    const countryCode = extractCountryCode(value);
-    console.log("Country Code:", countryCode);
-    setValid(validatePhoneNumber(value));
-  };
-  const validatePhoneNumber = (phoneNumber: string) => {
-    const phoneNumberPattern = /^\+?[1-9]\d{1,14}$/;
 
-    return phoneNumberPattern.test(phoneNumber);
-  };
-  const extractCountryCode = (fullPhoneNumber: any) => {
-    // El código del país y el número se separan por un espacio en el valor almacenado
-    const parts = fullPhoneNumber.split(" ");
-    return parts[0]; // Retornar el código del país, que es la primera parte
-  };
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true); // Comenzar a mostrar el indicador de carga
@@ -53,9 +49,13 @@ const RegisterPage = () => {
         setIsLoading(false); // Asegurar que el indicador de carga se oculta al finalizar
       }
     };
-    // fetchData();
+    fetchData();
   }, []);
-  // console.log({ phoneNumber }, "data de country");
+
+  const codeCountries = data?.data.map((item: DataCountry) => item.code_number);
+  console.log({ codeCountries }, data);
+  const idCountries = data?.data.map((item: DataCountry) => item.id);
+  const nameCountries = data?.data.map((item: DataCountry) => item.name);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -72,7 +72,8 @@ const RegisterPage = () => {
         userName: username,
         email,
         password,
-        countryId: country,
+        countryId: idCountry,
+        phone_number: `${selectedCode}${phoneNumber}`,
       }),
     });
 
@@ -104,7 +105,7 @@ const RegisterPage = () => {
       <div className="bg-[rgba(0,0,0,0.75)] rounded-2xl px-[24px] py-[40px] m-0 flex flex-col  w-[90%] sm:w-[65%] md:w-[530px] space-y-3">
         <section className="space-y-3">
           <p className="text-white text-2xl flex justify-center items-center ">Registro</p>
-          <p className="text-white text-sm  text-center md:text-md xl:text-xl">Transformar vidas mediante el aprendizaje integral</p>
+          <p className="text-white text-sm  text-center md:text-md xl:text-xl">Transformar la industria peruana en referente mundial</p>
         </section>
 
         <form onSubmit={handleSubmit}>
@@ -120,16 +121,19 @@ const RegisterPage = () => {
               </div>
               <div className="flex flex-col  space-y-3 md:flex-row md:space-y-0  md:space-x-3">
                 <InputComponent type="password" placeholder="contraseña" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                {/* <InputComponent type="text" placeholder="country" name="country" value={country} onChange={(e) => setCountry(Number(e.target.value))} /> */}
-                <PhoneInput
-                  regions={"south-america"}
-                  value={phoneNumber}
-                  onChange={handleChange}
-                  inputProps={{
-                    name: "phone",
-                    required: true,
-                  }}
-                />
+                <div>
+                  <div className="flex justify-content items-center flex-grow-1 xl:w-[235px] ">
+                    <select value={selectedCode} onChange={handleSelectChange} className="p-2  border !border-l-sm  h-[35px] w-[50%] text-sm hover:ring text-gray-700 placeholder:text-gray-400 !overflow-y-auto !max-h-[50px] ">
+                      {codeCountries?.map((item, index) => (
+                        <option key={index} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                    <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="p-2 border h-[35px] !border-l-0 w-full  text-sm hover:ring text-gray-700 placeholder:text-gray-400 flex-grow  " />
+                    {phoneNumber}
+                  </div>
+                </div>
               </div>
             </div>
             <div className="my-3">
@@ -146,9 +150,6 @@ const RegisterPage = () => {
           <Toaster richColors position="bottom-right" />
         </form>
       </div>
-      {/* <p className="message">Tú aprendizaje es nuestro mayor objetivo</p> */}
-      {/* <p className="text-white text-sm absolute top-0">Transformar vidas mediante el aprendizaje integral</p> */}
-      <p className="text-white text-sm absolute bottom-0">Transformar la industria peruana en referente mundial</p>
     </div>
   );
 };
