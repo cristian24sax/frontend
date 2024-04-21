@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
-import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { InputComponent } from "@/components/atoms";
 import { Country, DataCountry } from "@/interfaces/dataCountry";
@@ -81,8 +80,7 @@ const RegisterPage = () => {
 
     if (!res.ok) {
       setErrors(responseAPI.message);
-      router.push("/dashboard");
-
+      // router.push("/dashboard");
       return;
     }
 
