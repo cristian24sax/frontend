@@ -1,20 +1,22 @@
 import { DataCourses } from "@/interfaces/dataCourses";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import "swiper/css";
+import { Swiper, SwiperSlide } from "swiper/react";
 import CardCourseComponent from "../atoms/cardCourse";
 
 export default function ListCoursesComponent() {
   const [courses, setCourses] = useState<DataCourses[]>([]); // Estado para almacenar los cursos
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
-
   useEffect(() => {
+    console.log(session, "data");
     const fetchData = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${session?.user.token}`,
+            Authorization: `Bearer ${session?.user.data.token}`,
             "Content-Type": "application/json",
           },
         });
@@ -34,13 +36,17 @@ export default function ListCoursesComponent() {
   }, []);
   console.log({ courses });
   return (
-    <div className="flex flex-wrap gap-4 my-4">
+    <div className="flex flex-wrap gap-4 my-4 min-w-full pb-3">
       {error && <p>Error: {error}</p>}
-      {!error &&
-        courses.map((course: any) => (
-          // <div key={course.id}>{course.name}</div> // Renderizar cursos
-          <CardCourseComponent course={course} key={course.id} />
-        ))}
+      {!error && (
+        <Swiper spaceBetween={20} slidesPerView={3} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
+          {courses.map((course: any) => (
+            <SwiperSlide key={course.id}>
+              <CardCourseComponent course={course} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      )}
     </div>
   );
 }
