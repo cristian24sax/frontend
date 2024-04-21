@@ -105,7 +105,7 @@ const RegisterPage = () => {
       <div className="bg-[rgba(0,0,0,0.75)] rounded-2xl px-[24px] py-[40px] m-0 flex flex-col  w-[90%] sm:w-[65%] md:w-[530px] space-y-3">
         <section className="space-y-3">
           <p className="text-white text-2xl flex justify-center items-center ">Registro</p>
-          <p className="text-white text-sm  text-center md:text-md xl:text-xl">Transformar la industria peruana en referente mundial</p>
+          <p className="text-white text-sm  text-center md:text-md xl:text-xl"></p>
         </section>
 
         <form onSubmit={handleSubmit}>
@@ -131,7 +131,7 @@ const RegisterPage = () => {
                       ))}
                     </select>
                     <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="p-2 border h-[35px] !border-l-0 w-full  text-sm hover:ring text-gray-700 placeholder:text-gray-400 flex-grow  " />
-                    {phoneNumber}
+                    
                   </div>
                 </div>
               </div>

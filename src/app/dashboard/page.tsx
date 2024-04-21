@@ -18,7 +18,11 @@ const Dashboard = () => {
         <SesionComponent />
       </header>
       <div className="my-5">
-        <h1>Lista de cursos</h1>
+        <h1>Los más vistos</h1>
+        <ListCoursesComponent />
+        <h1>Recien subidos</h1>
+        <ListCoursesComponent />
+        <h1>Vieos vistos</h1>
         <ListCoursesComponent />
       </div>
     </main>
