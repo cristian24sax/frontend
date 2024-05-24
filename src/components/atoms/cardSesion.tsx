@@ -10,7 +10,7 @@ export default function SesionComponent({ user, lastName }: props) {
   const [show, setShow] = useState<boolean>(false);
   const name = "usuario";
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user || "user")}&background=random&color=fff`;
-
+  console.log(session,'data')
   return (
     <main className="relative">
       <section onClick={() => setShow(!show)} className="flex gap-2 justify-content items-center cursor-pointer">

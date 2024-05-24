@@ -1,7 +1,5 @@
 import AsideBar from "@/components/molecules/asibar";
-// ("use client");
 import React from "react";
-// import Link from "next/link";
 
 interface AuthLayoutProps {
   readonly children: React.ReactNode;
