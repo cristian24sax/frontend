@@ -6,7 +6,8 @@ export interface Country {
 }
 
 export interface DataCountry {
-  id: number;
-  name: string;
   code_number: string;
+  name: string;
+  id: number;
+  number_digits: string;
 }

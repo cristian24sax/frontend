@@ -1,13 +1,14 @@
 "use client";
-import Link from "next/link";
+import { InputComponent } from "@/components/atoms";
+import CountrySelect from "@/components/atoms/country";
+import { Country } from "@/interfaces/dataCountry";
+import axios from "axios";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import { Toaster, toast } from "sonner";
-import axios from "axios";
-import "react-phone-number-input/style.css";
-import { InputComponent } from "@/components/atoms";
-import { Country, DataCountry } from "@/interfaces/dataCountry";
 
 const RegisterPage = () => {
   const [errors, setErrors] = useState<string[]>([]);
@@ -17,7 +18,7 @@ const RegisterPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [country, setCountry] = useState<number>(1);
-  const [data, setData] = useState<Country>(); // Estado para almacenar la respuesta de la API
+  const [dataCountry, setDataCountry] = useState<Country>(); // Estado para almacenar la respuesta de la API
   const [error, setError] = useState(null); // Estado para almacenar cualquier error de la API
   const [isLoading, setIsLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -25,13 +26,6 @@ const RegisterPage = () => {
   const [idCountry, SetIdCountry] = useState<number>();
 
   // Manejar el cambio de selección
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCode(event.target.value);
-    const idcountry = data?.data?.find((item: DataCountry) => item.code_number === event.target.value);
-    SetIdCountry(idcountry?.id);
-    console.log(idcountry, "as");
-    setPhoneNumber("");
-  };
   const router = useRouter();
   // const data = await getData();
 
@@ -40,7 +34,7 @@ const RegisterPage = () => {
       setIsLoading(true); // Comenzar a mostrar el indicador de carga
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/country/select`); // Cambia la URL por tu endpoint
-        setData(response.data); // Guardar los datos de la respuesta en el estado
+        setDataCountry(response.data); // Guardar los datos de la respuesta en el estado
         setError(null); // Asegurarse de resetear el estado de error
       } catch (error) {
         // setError(error); // Guardar cualquier error que ocurra durante la llamada
@@ -50,11 +44,6 @@ const RegisterPage = () => {
     };
     fetchData();
   }, []);
-
-  const codeCountries = data?.data.map((item: DataCountry) => item.code_number);
-  console.log({ codeCountries }, data);
-  const idCountries = data?.data.map((item: DataCountry) => item.id);
-  const nameCountries = data?.data.map((item: DataCountry) => item.name);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,19 +108,7 @@ const RegisterPage = () => {
               </div>
               <div className="flex flex-col  space-y-3 md:flex-row md:space-y-0  md:space-x-3">
                 <InputComponent type="password" placeholder="contraseña" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <div>
-                  <div className="flex justify-content items-center flex-grow-1 xl:w-[235px] ">
-                    <select value={selectedCode} onChange={handleSelectChange} className="p-2  border !border-l-sm  h-[35px] w-[50%] text-sm hover:ring text-gray-700 placeholder:text-gray-400 !overflow-y-auto !max-h-[50px] ">
-                      {codeCountries?.map((item, index) => (
-                        <option key={index} value={item}>
-                          {item}
-                        </option>
-                      ))}
-                    </select>
-                    <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="p-2 border h-[35px] !border-l-0 w-full  text-sm hover:ring text-gray-700 placeholder:text-gray-400 flex-grow  " />
-                    
-                  </div>
-                </div>
+                <CountrySelect dataCountry={dataCountry} selectedCode={selectedCode} setSelectedCode={setSelectedCode} idCountry={idCountry} setIdCountry={SetIdCountry} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} />
               </div>
             </div>
             <div className="my-3">
