@@ -53,9 +53,9 @@ const LoginPage = () => {
 
     if (responseNextAuth?.ok) {
       const session = await getSession();
-      const token = session?.user?.data?.token; // Obtener el token de la sesión
-      if (token) {
-        localStorage.setItem("token", token);
+      const dataUser = session?.user?.data; // Obtener el token de la sesión
+      if (dataUser) {
+        localStorage.setItem("dataUser", JSON.stringify(dataUser));
       }
       router.push("/dashboard");
       toast.success("Inicio de sesión exitoso");
