@@ -1,14 +1,17 @@
 "use client";
+
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { decryptData, encryptData } from "./utils/encrydata";
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // Inicia como falso
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,18 +23,21 @@ const LoginPage = () => {
       setRememberMe(decrypted.recover);
     }
   }, []);
+
   useEffect(() => {
     if (rememberMe) {
       const myData = { email, password, recover: true };
       const encrypted = encryptData(myData);
       localStorage.setItem("myData", encrypted);
     } else {
-      localStorage.clear();
+      localStorage.removeItem("myData");
     }
   }, [rememberMe, email, password]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
+
     const responseNextAuth = await signIn("credentials", {
       email,
       password,
@@ -41,10 +47,21 @@ const LoginPage = () => {
 
     if (responseNextAuth?.error) {
       toast.error("Hubo un error al iniciar sesión");
+      setLoading(false);
       return;
     }
-    router.push("/dashboard");
-    toast.success("Inicio de sesión exitoso");
+
+    if (responseNextAuth?.ok) {
+      const session = await getSession();
+      const token = session?.user?.data?.token; // Obtener el token de la sesión
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      router.push("/dashboard");
+      toast.success("Inicio de sesión exitoso");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -62,11 +79,7 @@ const LoginPage = () => {
             </div>
             <div className="flex justify-between items-center mt-3">
               <label className="text-white text-sm flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={rememberMe} // El estado del checkbox está controlado por `rememberMe`
-                  onChange={() => setRememberMe(!rememberMe)} // Alterna el estado del checkbox
-                />
+                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
                 Recordar mi cuenta
               </label>
               <Link href="/auth/recover">
@@ -77,8 +90,8 @@ const LoginPage = () => {
 
           <section className="">
             <div className="flex justify-center items-center mt-4">
-              <button className="bg-white p-2 rounded-md text-sm md:hover:!bg-[#333] hover:!text-white transition-colors" type="submit">
-                Iniciar sesión
+              <button className={`bg-white p-2 rounded-md text-sm md:hover:!bg-[#333] hover:!text-white transition-colors ${loading ? "cursor-not-allowed" : ""}`} type="submit" disabled={loading}>
+                {loading ? "Cargando..." : "Iniciar sesión"}
               </button>
             </div>
           </section>
