@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { decryptData, encryptData } from "./utils/encrydata";
-
+import Cookies from "js-cookie";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,6 +57,10 @@ const LoginPage = () => {
       if (dataUser) {
         localStorage.setItem("dataUser", JSON.stringify(dataUser));
       }
+      const token = dataUser?.token as string;
+      const id = dataUser?.id as number;
+      Cookies.set("token", token, { expires: 7 });
+      Cookies.set("idUser", String(id), { expires: 7 });
       router.push("/dashboard");
       toast.success("Inicio de sesión exitoso");
     }

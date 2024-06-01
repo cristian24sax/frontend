@@ -1,17 +1,15 @@
+"use client";
+import { useBearStore } from "@/store/ui";
 import React, { useState } from "react";
 import { TbSearch } from "react-icons/tb";
 
-interface ChildComponentProps {
-  sendDataToParent: (data: string) => void;
-}
-
-const SearchComponent: React.FC<ChildComponentProps> = ({ sendDataToParent }) => {
+const SearchComponent = () => {
   const [childData, setChildData] = useState<string>("");
-
+  const { setInputValue } = useBearStore();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
+    setInputValue(newValue);
     setChildData(newValue);
-    sendDataToParent(newValue);
   };
 
   return (

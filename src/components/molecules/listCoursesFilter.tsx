@@ -13,7 +13,7 @@ export default function ListCoursesFilterComponent({ courses, error }: props) {
       {!error && (
         <div className="flex ">
           {courses.map((item: DataCourses) => (
-            <CardCourseComponent course={item} />
+            <CardCourseComponent course={item} key={item.id} />
           ))}
         </div>
       )}

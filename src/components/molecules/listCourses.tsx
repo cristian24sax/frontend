@@ -1,11 +1,12 @@
+"use client";
 import { DataCourses } from "@/interfaces/dataCourses";
 import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import CardCourseComponent from "../atoms/cardCourse";
-interface props{
-  courses: DataCourses[],
-  error: any,
-  slidesPerView:number
+interface props {
+  courses: DataCourses[];
+  error: any;
+  slidesPerView: number;
 }
 export default function ListCoursesComponent({ courses, error, slidesPerView }: props) {
   return (
@@ -13,7 +14,7 @@ export default function ListCoursesComponent({ courses, error, slidesPerView }: 
       {error && <p>Error: {error}</p>}
       {!error && (
         <Swiper spaceBetween={20} slidesPerView={slidesPerView} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
-          {courses.map((course: any) => (
+          {courses?.map((course: any) => (
             <SwiperSlide key={course.id}>
               <CardCourseComponent course={course} />
             </SwiperSlide>
