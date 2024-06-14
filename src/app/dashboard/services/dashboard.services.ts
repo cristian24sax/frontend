@@ -34,3 +34,13 @@ export async function fetchUserWatchingCourses() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/user-watching?UserPersonId=${id}`, headersFetch);
   return response.json();
 }
+export async function fetchCourseDetail(id: number) {
+  const headersFetch = headers();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/get?LessonId=${id}`, headersFetch);
+  return response.json();
+}
+export async function fetchCourseVideo(id: number) {
+  const headersFetch = headers();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?LessonId=${id}`, headersFetch);
+  return response.json();
+}

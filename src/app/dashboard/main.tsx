@@ -5,6 +5,8 @@ import { DataCourses } from "@/interfaces/dataCourses";
 import { useBearStore } from "@/store/ui";
 import React, { useEffect, useState } from "react";
 import { useFilterCourses } from "./hooks/useFilterCourses";
+import SearchComponent from "@/components/atoms/search";
+import SesionComponent from "@/components/atoms/cardSesion";
 interface props {
   dataMostViewed: DataCourses[];
   dataUpdoadCourses: DataCourses[];
@@ -14,6 +16,10 @@ export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchi
   const { showCoursesFilter, coursesFilter, error, search } = useFilterCourses();
   return (
     <>
+      <header className="shadow-sm sticky top-0 flex justify-between items-center  h-16 rounded-sm bg-stone-100 p-4 z-10">
+        <SearchComponent />
+        <SesionComponent />
+      </header>
       {showCoursesFilter && search !== "" ? (
         <>
           <h3 className="text-xl font-bold">Cursos filtrados</h3>
