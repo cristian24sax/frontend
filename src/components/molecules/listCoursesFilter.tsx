@@ -11,7 +11,7 @@ export default function ListCoursesFilterComponent({ courses, error }: props) {
     <div className="flex flex-wrap gap-4 my-4 min-w-full pb-3">
       {error && <p>Error: {error}</p>}
       {!error && (
-        <div className="flex ">
+        <div className="flex flex-wrap gap-4 ">
           {courses.map((item: DataCourses) => (
             <CardCourseComponent course={item} key={item.id} />
           ))}

@@ -1,8 +1,8 @@
 export default function CardCourseComponent({ course }: any) {
   return (
-    <div className="p-4 shadow-xl rounded bg-stone-100 min-w-[330px] ">
+    <div className="p-4 shadow-xl rounded bg-stone-100 max-w-[380px] ">
       <img src={course.previousImage} alt="Descripción de la imagen" />
-      <h2 className="text-xl font-bold mb-2">{course.name}</h2>
+      <h2 className="text-xl font-bold text-center mt-5 mb-0">{course.name}</h2>
     </div>
   );
 }

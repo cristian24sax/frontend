@@ -13,12 +13,30 @@ export default async function VideosCourses({ params }: any) {
       <div className="flex-1 relative">
         <EmbeddedVideo embedCode={data} />
       </div>
-      <div className="bg-gray-100  w-full md:w-64 overflow-auto flex flex-col justify-between">
+      <div className="bg-gray-100  w-full md:w-64 overflow-auto flex flex-col">
+        <div className="bg-blue-950 h-16 flex justify-center items-center">
+          <div className="text-white border border-collapse p-1 rounded-lg text-sm">Conviértete a Premiun</div>
+        </div>
+        <div className="mt-1">
+          <div className="bg-blue-500 text-white p-2 w-2/5 rounded-sm ml-3 ">Excelencia</div>
+        </div>
+        <div className="flex p-1 gap-2">
+          <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
+            <DownloadIcon className="h-4 w-4 mr-2" />
+            Descargar los adjuntos aqui
+          </div>
+          <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
+            <WarningIcon className="h-4 w-4 mr-2" />
+            Reportar un problema
+          </div>
+        </div>
         <div className="p-4">
           <h2 className="text-lg font-medium mb-4">Cursos</h2>
           <div className="space-y-2">
             {data.map((item: VideoData, index: number) => (
-              <OptionsComponent item={item} key={item.id} index={index} />
+              <div className="flex">
+                <OptionsComponent item={item} key={item.id} index={index} />
+              </div>
             ))}
           </div>
         </div>
@@ -27,9 +45,9 @@ export default async function VideosCourses({ params }: any) {
           <span className="bg-blue-950 text-white rounded-sm p-2">Encuesta de sastifaccion curso</span>
           <span className="bg-blue-950 text-white rounded-sm p-2">Programar dinámica</span>
         </div>
-      </div> 
-    </div> 
-  ); 
+      </div>
+    </div>
+  );
 }
 
 function MaximizeIcon(props: any) {
@@ -51,7 +69,15 @@ function PauseIcon(props: any) {
     </svg>
   );
 }
-
+function WarningIcon(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3l-8.47-14.14a2 2 0 00-3.42 0z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+  );
+}
 function PlayIcon(props: any) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -66,6 +92,15 @@ function Volume2Icon(props: any) {
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+function DownloadIcon(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
     </svg>
   );
 }
