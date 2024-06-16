@@ -1,47 +1,86 @@
 "use client";
-import React, { useState } from "react";
+import { Course, Menu } from "@/interfaces/menu.interface";
+import { useBearStore } from "@/store/ui";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { AiOutlineHeart } from "react-icons/ai";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { MdOutlineDashboard } from "react-icons/md";
-import { RiSettings4Line } from "react-icons/ri";
 import { TbReportAnalytics } from "react-icons/tb";
-import { AiOutlineUser, AiOutlineHeart } from "react-icons/ai";
-import { FiMessageSquare, FiFolder, FiShoppingCart } from "react-icons/fi";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 import "./navbar.css";
 
-interface Props {
-  readonly children: React.ReactNode;
-}
-
-const AsideBar = ({ children }: Props) => {
+const AsideBar = () => {
   const [open, setOpen] = useState(true);
-  const menus = [
+  const [submenu, setSubMenu] = useState<Course[]>([]);
+
+  const dataUser = localStorage.getItem("dataUser");
+  if (!dataUser) {
+    throw new Error("No user data found");
+  }
+
+  const { token } = JSON.parse(dataUser as string);
+  const { setInputValueMenu } = useBearStore();
+
+  const menus: Menu[] = [
     {
       name: "Cursos",
       link: "/",
       icon: MdOutlineDashboard,
-      submenus: [
-        { name: "TMS", link: "/" },
-        { name: "TPS", link: "/" },
-        { name: "TQM", link: "/" },
-        { name: "RCM", link: "/" },
-        { name: "SCM", link: "/" },
-        { name: "SIX SIGMA", link: "/" },
-      ],
+      submenus: [],
     },
-    { name: "Feedback experto", link: "/", icon: TbReportAnalytics, margin: true },
-    { name: "Programar dinamica", link: "/", icon: AiOutlineHeart, margin: true },
+    {
+      name: "Feedback experto",
+      link: "/",
+      icon: TbReportAnalytics,
+      margin: true,
+    },
+    {
+      name: "Programar dinamica",
+      link: "/",
+      icon: AiOutlineHeart,
+      margin: true,
+    },
   ];
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const { data }: { data: Course[] } = await response.json();
+      setSubMenu(data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  menus[0].submenus = submenu;
+
+  const handleClick = (id: number) => {
+    setInputValueMenu(id);
+  };
 
   return (
     <section className="flex">
-      <div className={`bg-[#0e0e0e] min-h-screen ${open ? "w-72" : "w-16"} duration-500 text-gray-100 px-4 `}>
+      <div className={`bg-[#0e0e0e] min-h-screen ${open ? "w-72" : "w-16"} duration-500 text-gray-100 px-4`}>
         <div className="py-3 flex justify-end">
           <HiMenuAlt3 size={26} className="cursor-pointer" onClick={() => setOpen(!open)} />
         </div>
         <div className="mt-4 flex flex-col gap-4 relative">
-          {menus.map((menu, i) => (
+          {menus.map((menu, i: any) => (
             <div key={i} className={`group flex flex-col gap-1 ${menu.margin && "mt-5"}`}>
               <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
                 <Link href={menu.link} className="flex items-center">
@@ -55,10 +94,12 @@ const AsideBar = ({ children }: Props) => {
               {menu.submenus && (
                 <div className="ml-12">
                   {menu.submenus.map((sub, subIndex) => (
-                    <Link key={subIndex} href={sub.link} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
-                      <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
-                        {sub.name}
-                      </span>
+                    <Link href={"/dashboard"}>
+                      <div key={subIndex} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
+                        <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
+                          {sub.name}
+                        </span>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -67,7 +108,6 @@ const AsideBar = ({ children }: Props) => {
           ))}
         </div>
       </div>
-      {/* <div className="text-xl text-gray-900 font-semibold overflow-y-auto flex-1">{children}</div> */}
     </section>
   );
 };

@@ -2,6 +2,7 @@ import { DataCourses } from "@/interfaces/dataCourses";
 import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import CardCourseComponent from "../atoms/cardCourse";
+import Link from "next/link";
 interface props {
   courses: DataCourses[];
   error: any;
@@ -13,7 +14,9 @@ export default function ListCoursesFilterComponent({ courses, error }: props) {
       {!error && (
         <div className="flex flex-wrap gap-4 ">
           {courses.map((item: DataCourses) => (
-            <CardCourseComponent course={item} key={item.id} />
+            <Link href={`/dashboard/${item.id}`}>
+              <CardCourseComponent course={item} key={item.id} />
+            </Link>
           ))}
         </div>
       )}
