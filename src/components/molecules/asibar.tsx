@@ -24,19 +24,19 @@ const AsideBar = () => {
   const menus: Menu[] = [
     {
       name: "Cursos",
-      link: "/",
+      link: "",
       icon: MdOutlineDashboard,
       submenus: [],
     },
     {
       name: "Feedback experto",
-      link: "/",
+      link: "",
       icon: TbReportAnalytics,
       margin: true,
     },
     {
       name: "Programar dinamica",
-      link: "/",
+      link: "",
       icon: AiOutlineHeart,
       margin: true,
     },

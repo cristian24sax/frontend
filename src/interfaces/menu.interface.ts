@@ -8,7 +8,7 @@ export interface Course {
 
 export interface Menu {
   name: string;
-  link: string;
+  link?: string;
   icon: React.ComponentType;
   submenus?: Course[];
   margin?: boolean;
