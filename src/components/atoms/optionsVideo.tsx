@@ -9,6 +9,7 @@ interface Props {
 export const OptionsComponent = ({ item, index }: Props) => {
   const { setValue, value } = useVideoStore();
   let valueNew: number = 0;
+  console.log(value,'valor para el video')
   if (value === 0) valueNew = 1;
   const handleOptions = (id: number) => {
     setValue(id);

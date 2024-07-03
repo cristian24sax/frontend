@@ -12,4 +12,6 @@ export interface VideoData {
   formattedDuration: string;
   playOrder: number;
   hasBeenPlayed: number;
+  isLastVideoSeen: number;
+  secondsElapsed: number;
 }
