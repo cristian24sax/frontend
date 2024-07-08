@@ -10,12 +10,12 @@ interface EmbeddedVideoProps {
 
 const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { value, setValue } = useVideoStore();
-  const [currentTime, setCurrentTime] = useState(0);
+  const { value, setValue, setCurrentTime: time } = useVideoStore();
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
+  const [checkSent, setCheckSent] = useState(false); // Estado para rastrear si handlecheck ya se llamó
 
-  const sendTimeToEndpoint = async (seconds: number) => {
+  async function sendTimeToEndpoint(seconds: number) {
     const roundedSeconds = Math.floor(seconds);
     try {
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/progress`, {
@@ -33,6 +33,26 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
+  }
+
+  const handlecheck = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/user/check`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          lessonVideoId: value,
+          userPersonId: id,
+          checkedState: 1,
+        }),
+      });
+      setCheckSent(true); 
+    } catch (error) {
+      console.error("Error sending check state to endpoint:", error);
+    }
   };
 
   const throttledSendTimeToEndpoint = throttle(sendTimeToEndpoint, 30000);
@@ -42,7 +62,6 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
       containerRef.current.innerHTML = "";
       const tempDiv = document.createElement("div");
 
-      // Encuentra el video inicial
       const initialVideo = embedCode.find((item) => item.id === value) || embedCode[0];
       const initialTime = initialVideo.secondsElapsed;
 
@@ -54,7 +73,10 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
         const newScriptTag = document.createElement("script");
         Array.from(scriptTag.attributes).forEach((attr) => newScriptTag.setAttribute(attr.name, attr.value));
         newScriptTag.innerHTML = scriptTag.innerHTML;
-        containerRef.current.appendChild(newScriptTag);
+
+        if (containerRef.current) {
+          containerRef.current.appendChild(newScriptTag) as any;
+        }
 
         if (newScriptTag.src.includes("wistia.com/assets/external/E-v1.js")) {
           (newScriptTag as HTMLScriptElement).onload = () => {
@@ -75,13 +97,21 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       const nextIndex = currentIndex + 1;
                       if (nextIndex < embedCode.length) {
                         setValue(embedCode[nextIndex].id);
+                        setCheckSent(false); 
                       }
                     });
+
                     video.bind("timechange", (seconds: number) => {
-                      setCurrentTime(seconds);
+                      time(seconds);
                       throttledSendTimeToEndpoint(seconds);
+
+                      const duration = video.duration();
+                      if (duration - seconds <= 10 && !checkSent) {
+                        handlecheck();
+                      }
                     });
-                    video.time(initialTime); // Establece el tiempo inicial
+
+                    video.time(initialTime);
                     video.play();
                   },
                 });
@@ -91,9 +121,8 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
         }
       });
     }
-  }, [embedCode, value, setValue]);
+  }, [embedCode, value, setValue, checkSent]);
 
-  // Inicializa el valor de value con el último video visto
   useEffect(() => {
     const lastVideo = embedCode.find((item) => item.isLastVideoSeen === 1);
     if (lastVideo) {

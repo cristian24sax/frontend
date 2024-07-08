@@ -1,4 +1,4 @@
-"use client";
+
 import { Course, Menu } from "@/interfaces/menu.interface";
 import { useBearStore } from "@/store/ui";
 import Link from "next/link";

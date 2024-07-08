@@ -3,50 +3,61 @@ import { fetchCourseVideo } from "../../services";
 import EmbeddedVideo from "@/components/atoms/videoReproductor";
 import { OptionsComponent } from "@/components/atoms/optionsVideo";
 import { VideoData } from "@/interfaces/video.interface";
+import CommentModalClient from "@/components/atoms/buttonModal";
 
 export default async function VideosCourses({ params }: any) {
   const { id } = params;
   const { data } = await fetchCourseVideo(id);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen p-5">
-      <div className="flex-1 relative">
-        <EmbeddedVideo embedCode={data} />
+    <>
+      <Link href={`/dashboard/${id}`}>
+        <button className="flex justify-content mt-5 items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">
+          <BackArrowIcon className="h-4 w-4 mr-2" />
+          Atras
+        </button>
+      </Link>
+      <div className="flex flex-col md:flex-row h-screen p-2">
+        <div className="flex-1 relative ">
+          <EmbeddedVideo embedCode={data} />
+          <div className="flex gap-4">
+            <CommentModalClient />
+            <button className="flex justify-content mt-5 items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">Historial de dudas</button>
+          </div>
+        </div>
+        <div className="bg-gray-100  w-full md:w-[19rem] overflow-auto flex flex-col">
+          <div className="bg-blue-950 h-16 flex justify-center items-center">
+            <div className="text-white border border-collapse p-1 rounded-lg text-sm">Conviértete a Premiun</div>
+          </div>
+          <div className="mt-1">
+            <div className="bg-blue-500 text-white p-2 w-2/5 rounded-sm ml-3 ">Excelencia</div>
+          </div>
+          <div className="flex p-1 gap-2">
+            <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
+              <DownloadIcon className="h-4 w-4 mr-2" />
+              Descargar los adjuntos aqui
+            </div>
+            <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
+              <WarningIcon className="h-4 w-4 mr-2" />
+              Reportar un problema
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-medium mb-4">Cursos</h2>
+            <div>
+              {data.map((item: VideoData, index: number) => (
+                <OptionsComponent item={item} key={item.id} index={index} length={data.length} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col p-4 text-sm gap-2">
+            <span className="bg-blue-950 text-white rounded-sm p-2">Examen</span>
+            <span className="bg-blue-950 text-white rounded-sm p-2">Encuesta de sastifaccion curso</span>
+            <span className="bg-blue-950 text-white rounded-sm p-2">Programar dinámica</span>
+          </div>
+        </div>
       </div>
-      <div className="bg-gray-100  w-full md:w-64 overflow-auto flex flex-col">
-        <div className="bg-blue-950 h-16 flex justify-center items-center">
-          <div className="text-white border border-collapse p-1 rounded-lg text-sm">Conviértete a Premiun</div>
-        </div>
-        <div className="mt-1">
-          <div className="bg-blue-500 text-white p-2 w-2/5 rounded-sm ml-3 ">Excelencia</div>
-        </div>
-        <div className="flex p-1 gap-2">
-          <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
-            <DownloadIcon className="h-4 w-4 mr-2" />
-            Descargar los adjuntos aqui
-          </div>
-          <div className="flex  grow justify-center items-center bg-blue-950 text-white text-xs p-1">
-            <WarningIcon className="h-4 w-4 mr-2" />
-            Reportar un problema
-          </div>
-        </div>
-        <div className="p-4">
-          <h2 className="text-lg font-medium mb-4">Cursos</h2>
-          <div className="space-y-2">
-            {data.map((item: VideoData, index: number) => (
-              <div className="flex">
-                <OptionsComponent item={item} key={item.id} index={index} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col p-4 text-sm gap-2">
-          <span className="bg-blue-950 text-white rounded-sm p-2">Examen</span>
-          <span className="bg-blue-950 text-white rounded-sm p-2">Encuesta de sastifaccion curso</span>
-          <span className="bg-blue-950 text-white rounded-sm p-2">Programar dinámica</span>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -57,6 +68,14 @@ function MaximizeIcon(props: any) {
       <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
       <path d="M3 16v3a2 2 0 0 0 2 2h3" />
       <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+    </svg>
+  );
+}
+export function BackArrowIcon(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
     </svg>
   );
 }
