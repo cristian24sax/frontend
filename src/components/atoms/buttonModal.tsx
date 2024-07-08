@@ -11,6 +11,12 @@ export default function CommentModalClient() {
   const { value, currentTime } = useVideoStore();
 
   const handleSaveComment = async (comment: string, hours: string, minutes: string, seconds: string) => {
+    console.log("Comment saved:", comment, { hours }, seconds, minutes, value, id, currentTime);
+    if (hours === "" && minutes === "" && seconds === "") {
+      hours = "0";
+      minutes = "0";
+      seconds = "0";
+    }
     const totalSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     try {
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/question`, {

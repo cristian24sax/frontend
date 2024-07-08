@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Toaster, toast } from "sonner";
 
 interface CommentModalProps {
   isOpen: boolean;
@@ -12,14 +13,29 @@ export function CommentModal({ isOpen, onClose, onSave }: CommentModalProps) {
   const [minutes, setMinutes] = useState("");
   const [seconds, setSeconds] = useState("");
 
+  useEffect(() => {
+    if (!isOpen) {
+      setComment("");
+      setHours("");
+      setMinutes("");
+      setSeconds("");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSave = () => {
+    if (comment.trim() === "") {
+      toast.error("El comentario no puede estar vacío");
+
+      return;
+    }
+    if (hours.trim() === "" && minutes.trim() === "" && seconds.trim() === "") {
+      toast.error("Debes ingresar al menos una hora, minuto o segundo");
+
+      return;
+    }
     onSave(comment, hours, minutes, seconds);
-    setComment("");
-    setHours("");
-    setMinutes("");
-    setSeconds("");
     onClose();
   };
 
@@ -42,6 +58,7 @@ export function CommentModal({ isOpen, onClose, onSave }: CommentModalProps) {
           </button>
         </div>
       </div>
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }
