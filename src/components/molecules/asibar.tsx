@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineHeart } from "react-icons/ai";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { MdOutlineDashboard } from "react-icons/md";
-import { TbReportAnalytics } from "react-icons/tb";
+import { TbReportAnalytics, TbVideo } from "react-icons/tb";
 import "./navbar.css";
 
 const AsideBar = () => {
@@ -27,6 +27,12 @@ const AsideBar = () => {
       link: "",
       icon: MdOutlineDashboard,
       submenus: [],
+    },
+    {
+      name: "Modulo de videos",
+      link: "",
+      icon: TbVideo,
+      margin: true,
     },
     {
       name: "Feedback experto",
