@@ -68,5 +68,6 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
     if (valueMenu !== null) fetchFilterCoursesMenu();
   }, [valueMenu]);
 
+
   return { showCoursesFilter, coursesFilter, error, search, valueMenu };
 };

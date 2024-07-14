@@ -1,18 +1,19 @@
 "use client";
-import { ChangeEvent, useState } from "react";
-
+import { ChangeEvent, useEffect, useState } from "react";
 import SelectInput from "@/components/atoms/selectInput";
 import { CourseList } from "@/interfaces/dataCourseList";
 import { InputComponent } from "@/components/atoms";
 import { Button, Input, Label, Textarea } from "@headlessui/react";
-interface props {
+
+interface Props {
   courseList: CourseList[];
 }
+
 interface NewCourse {
-  courseProjectId: number;
-  courseId: number;
-  userCreatorId: number;
-  id: number;
+  courseProjectId?: number;
+  courseId?: number;
+  userCreatorId?: number;
+  id?: number;
   name: string;
   description: string;
   previousImage: File | null;
@@ -23,10 +24,11 @@ interface NewCourse {
   instructorName: string;
   instructorProfession: string;
 }
-export default function VideoMain({ courseList }: props) {
+
+export default function VideoMain({ courseList }: Props) {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
-  const [selectedCourse, setSelectedCourse] = useState<any>(courseList[0]);
+  const [selectedCourse, setSelectedCourse] = useState(courseList[0]);
   const [showModal, setShowModal] = useState(false);
   const [newCourse, setNewCourse] = useState<NewCourse>({
     courseProjectId: 0,
@@ -47,15 +49,17 @@ export default function VideoMain({ courseList }: props) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showModalVideo, setShowModalVideo] = useState(false);
   const [response, setResponse] = useState(0);
-  const [videoDetails, setVideoDetails] = useState([{ name: "", description: "", PlayOrder: null as number | null, videoFile: null as File | null }]);
+  const [videoDetails, setVideoDetails] = useState([{ id: null, name: "", description: "", playOrder: null as number | null, videoFile: null as File | null }]);
+  const [refresh, setRefresh] = useState(false);
 
   const handleSelectionChange = (newSelection: any) => {
     setSelectedCourse(newSelection);
-    console.log(selectedCourse, "course");
   };
+
   const handleInputChange = (e: any) => {
     setNewCourse({ ...newCourse, [e.target.name]: e.target.value });
   };
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     setNewCourse((prevState: any) => ({
@@ -113,30 +117,27 @@ export default function VideoMain({ courseList }: props) {
       console.error("Error saving course:", error);
     }
 
-    // Aquí puedes hacer la lógica para enviar el formData a tu backend
-    console.log(formData.entries(), "form data");
     setCourses([...courses, newCourseData]);
     setShowModal(false);
-    // setNewCourse({
-    //   name: "",
-    //   description: "",
-    //   classes: 0,
-    //   previousImage: null,
-    //   lessonOrder: 0,
-    //   objectives: "",
-    //   bibliography: "",
-    //   cvInstructor: "",
-    //   instructorName: "",
-    //   instructorProfession: "",
-    // });
+    setNewCourse({
+      name: "",
+      description: "",
+      previousImage: null,
+      lessonOrder: 0,
+      objectives: "",
+      bibliography: "",
+      cvInstructor: "",
+      instructorName: "",
+      instructorProfession: "",
+    });
   };
+
   async function sendVideo(formData: FormData) {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // No incluyas "Content-Type" aquí
         },
         body: formData,
       });
@@ -152,13 +153,18 @@ export default function VideoMain({ courseList }: props) {
       console.error("Error sending time to endpoint:", error);
     }
   }
+
   const openModal = (course: any) => {
+    setResponse(course.id);
+    const videoFilters = courses.find((video) => video.id === course.id);
+    setVideoDetails(videoFilters?.["listLessonVideoDetailsResponses"] || []);
     setShowModalVideo(true);
   };
 
   const closeModal = () => {
     setShowModalVideo(false);
   };
+
   const handleVideoChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     if (e.target.files) {
       const newVideoDetails = [...videoDetails];
@@ -168,7 +174,7 @@ export default function VideoMain({ courseList }: props) {
   };
 
   const handleAddVideo = () => {
-    setVideoDetails([...videoDetails, { name: "", description: "", PlayOrder: 0, videoFile: null }]);
+    setVideoDetails([...videoDetails, { id: null, name: "", description: "", playOrder: 0, videoFile: null }]);
   };
 
   const handleVideoDetailsChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
@@ -177,20 +183,19 @@ export default function VideoMain({ courseList }: props) {
     newVideoDetails[index][name] = value;
     setVideoDetails(newVideoDetails);
   };
+
   const handleSendVideo = async (e: any) => {
     e.preventDefault();
-    console.log(videoDetails, "detalle");
     videoDetails.forEach((video) => {
       const newCourseData = {
         lessonId: response,
         name: video.name,
         userCreatorId: id,
         description: video.description,
-        playOrder: video.PlayOrder,
+        playOrder: video.playOrder,
         courseProjectId: selectedCourse.courseProjectId,
         videoFile: video.videoFile,
       };
-      console.log(newCourseData, "data para enviar");
       const formData = new FormData();
       for (const key in newCourseData) {
         if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -205,13 +210,13 @@ export default function VideoMain({ courseList }: props) {
       }
     });
   };
+
   async function sendVideoList(formData: FormData) {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // No incluyas "Content-Type" aquí
         },
         body: formData,
       });
@@ -221,13 +226,41 @@ export default function VideoMain({ courseList }: props) {
       }
 
       const data = await response.json();
+      setRefresh(true);
       console.log("Success del listado:", data);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
   }
+
+  const fetchFilterCoursesList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/list-details?CourseId=${selectedCourse.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const { data } = await response.json();
+      setCourses(data);
+    } catch (error: any) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedCourse) {
+      fetchFilterCoursesList();
+    }
+  }, [selectedCourse,refresh]);
+
   return (
-    <div className="p-4  h-full">
+    <div className="p-4 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="w-1/2">
           <SelectInput onSelectionChange={handleSelectionChange} options={courseList} />
@@ -247,11 +280,11 @@ export default function VideoMain({ courseList }: props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {courses.map((course) => (
                 <div key={course.name} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img src={imagePreview as any} alt={course.name} className="w-full h-48 object-cover" />
+                  <img src={(imagePreview as any) || course.previousImage} alt={course.name} className="w-full h-48 object-cover" />
                   <div className="p-4 flex">
                     <div className="flex-grow">
                       <h3 className="text-lg font-semibold">{course.name}</h3>
-                      <div>{course.instructorName}</div>
+                      <div>{course.instructorName || course["nameLessonOrder"]}</div>
                       <div>{course.instructorProfession}</div>
                     </div>
                     <div>
@@ -266,36 +299,12 @@ export default function VideoMain({ courseList }: props) {
           )}
         </div>
         {showModalVideo && selectedCourse && (
-          // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          //   <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8">
-          //     <h2 className="text-2xl font-semibold mb-4">Videos de {selectedCourse.name}</h2>
-          //     <div>
-          //       <input type="file" accept="video/*" multiple onChange={handleVideoChange} className="mb-4" />
-          //       {videos.length > 0 && (
-          //         <div>
-          //           <h3 className="text-lg font-semibold">Videos seleccionados:</h3>
-          //           <ul className="list-disc list-inside">
-          //             {videos.map((video, index) => (
-          //               <li key={index}>{video.name}</li>
-          //             ))}
-          //           </ul>
-          //         </div>
-          //       )}
-          //     </div>
-          //     <button className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-700" onClick={handleAddVideo}>
-          //       Agregar Video
-          //     </button>
-          //     <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
-          //       Cerrar
-          //     </button>
-          //   </div>
-          // </div>
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Videos de {selectedCourse.name}</h2>
                 <button className="p-2 bg-green-500 text-white rounded hover:bg-green-700" onClick={handleAddVideo}>
-                  Agregar Video
+                  Agregar información de Video
                 </button>
               </div>
               {videoDetails.map((videoDetail, index) => (
@@ -310,7 +319,7 @@ export default function VideoMain({ courseList }: props) {
                           <input type="text" name="description" value={videoDetail.description} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Descripción" className="w-full p-2 border rounded" />
                         </td>
                         <td className="pr-2">
-                          <input type="number" name="PlayOrder" value={videoDetail.PlayOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="orden de reproducción" className="w-full p-2 border rounded" />
+                          <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="orden de reproducción" className="w-full p-2 border rounded" />
                         </td>
                         <td>
                           <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
@@ -322,8 +331,8 @@ export default function VideoMain({ courseList }: props) {
                 </div>
               ))}
               <div className="flex gap-4">
-                <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
-                  Agregar Video
+                <button className="p-2 mt-4 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
+                  Guardar
                 </button>
                 <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
                   Cerrar
@@ -333,7 +342,7 @@ export default function VideoMain({ courseList }: props) {
           </div>
         )}
         {showModal && (
-          <div className=" fixed inset-0 bg-black bg-opacity-50 flex  mb-16 z-50 ">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex mb-16 z-50 ">
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8 mb-16 h-full overflow-y-auto">
               <h2 className="text-2xl font-semibold mb-4">Nuevo Curso</h2>
               <form onSubmit={handleSaveCourse} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -345,7 +354,6 @@ export default function VideoMain({ courseList }: props) {
                   <h4>Descripción</h4>
                   <textarea className="w-full border-gray-200 border" id="description" name="description" value={newCourse.description} onChange={handleInputChange} rows={4} required />
                 </div>
-
                 <div className="mb-4">
                   <h4>Imagen Previa</h4>
                   {imagePreview ? (
@@ -362,7 +370,6 @@ export default function VideoMain({ courseList }: props) {
                     </label>
                   )}
                 </div>
-                {/* value={newCourse.previousImage} */}
                 <div className="mb-4">
                   <h4>Orden de la Lección</h4>
                   <input className="w-full border-gray-200 border" type="number" id="lessonOrder" name="lessonOrder" value={newCourse.lessonOrder} onChange={handleInputChange} min={0} required />

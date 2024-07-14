@@ -10,7 +10,7 @@ export default async function DetailCourse({ params }: any) {
     <div className="w-full mx-auto py-12 px-4 md:px-6">
       <div className="flex flex-col items-center">
         <div className="rounded-lg overflow-hidden mb-8">
-          <Image src={data.previousImage} alt={`img`} width={800} height={700} unoptimized={true} className="rounded-md h-full" />
+          <Image src={data.previousImage} alt={`img`} width={800} height={700} unoptimized={true} className="rounded-md h-[500px]" />
         </div>
         <div className="flex justify-end w-full mb-8 gap-4">
           <Link href={`/dashboard/videos/${id}`}>

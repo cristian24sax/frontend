@@ -1,4 +1,4 @@
-
+"use client"
 import { Course, Menu } from "@/interfaces/menu.interface";
 import { useBearStore } from "@/store/ui";
 import Link from "next/link";
@@ -24,7 +24,7 @@ const AsideBar = () => {
   const menus: Menu[] = [
     {
       name: "Cursos",
-      link: "",
+      link: "/dashboard",
       icon: MdOutlineDashboard,
       submenus: [],
     },

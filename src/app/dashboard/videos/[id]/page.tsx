@@ -13,7 +13,7 @@ export default async function VideosCourses({ params }: any) {
     <>
       <Link href={`/dashboard/${id}`}>
         <button className="flex justify-content mt-5 items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">
-          <BackArrowIcon className="h-4 w-4 mr-2" />
+          {/* <BackArrowIcon className="h-4 w-4 mr-2" /> */}
           Atras
         </button>
       </Link>
