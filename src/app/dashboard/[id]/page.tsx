@@ -5,7 +5,6 @@ import Link from "next/link";
 export default async function DetailCourse({ params }: any) {
   const { id } = params;
   const { data } = await fetchCourseDetail(id);
-  console.log({ data });
   const avatarUrl = `https://ui-avatars.com/api/?name=${data.instructorName}&background=random&color=fff`;
   return (
     <div className="w-full mx-auto py-12 px-4 md:px-6">

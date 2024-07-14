@@ -9,9 +9,12 @@ interface props {
   courseList: CourseList[];
 }
 interface NewCourse {
+  courseProjectId: number;
+  courseId: number;
+  userCreatorId: number;
+  id: number;
   name: string;
   description: string;
-  classes: number;
   previousImage: File | null;
   lessonOrder: number;
   objectives: string;
@@ -26,9 +29,12 @@ export default function VideoMain({ courseList }: props) {
   const [selectedCourse, setSelectedCourse] = useState<any>(courseList[0]);
   const [showModal, setShowModal] = useState(false);
   const [newCourse, setNewCourse] = useState<NewCourse>({
+    courseProjectId: 0,
+    courseId: 0,
+    userCreatorId: 0,
+    id: 0,
     name: "",
     description: "",
-    classes: 0,
     previousImage: null,
     lessonOrder: 0,
     objectives: "",
@@ -75,19 +81,19 @@ export default function VideoMain({ courseList }: props) {
     e.preventDefault();
     const newCourseId = courses.length + 1;
     const newCourseData = {
-      CourseProjectId: selectedCourse.courseProjectId,
-      CourseId: selectedCourse.id,
-      UserCreatorId: id,
-      Id: newCourseId,
-      Name: newCourse.name,
-      Description: newCourse.description,
-      PreviousImage: newCourse.previousImage,
-      LessonOrder: newCourse.lessonOrder,
-      Objectives: newCourse.objectives,
-      Bibliography: newCourse.bibliography,
-      CvInstructor: newCourse.cvInstructor,
-      InstructorName: newCourse.instructorName,
-      InstructorProfession: newCourse.instructorProfession,
+      courseProjectId: selectedCourse.courseProjectId,
+      courseId: selectedCourse.id,
+      userCreatorId: id,
+      id: newCourseId,
+      name: newCourse.name,
+      description: newCourse.description,
+      previousImage: newCourse.previousImage,
+      lessonOrder: newCourse.lessonOrder,
+      objectives: newCourse.objectives,
+      bibliography: newCourse.bibliography,
+      cvInstructor: newCourse.cvInstructor,
+      instructorName: newCourse.instructorName,
+      instructorProfession: newCourse.instructorProfession,
     };
     console.log(newCourseData, "data del form");
     const formData = new FormData();
@@ -105,7 +111,7 @@ export default function VideoMain({ courseList }: props) {
 
     // Aquí puedes hacer la lógica para enviar el formData a tu backend
     console.log(formData.entries(), "form data");
-    // setCourses([...courses, newCourseData]);
+    setCourses([...courses, newCourseData]);
     setShowModal(false);
     // setNewCourse({
     //   name: "",
@@ -125,7 +131,7 @@ export default function VideoMain({ courseList }: props) {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
           // No incluyas "Content-Type" aquí
         },
         body: formData,
@@ -163,10 +169,11 @@ export default function VideoMain({ courseList }: props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {courses.map((course) => (
                 <div key={course.name} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img src="/placeholder.svg" alt={course.name} className="w-full h-48 object-cover" />
+                  <img src={imagePreview as any} alt={course.name} className="w-full h-48 object-cover" />
                   <div className="p-4">
                     <h3 className="text-lg font-semibold">{course.name}</h3>
-                    <p className="text-gray-500 mt-2">{course.classes} Clases</p>
+                    <div>{newCourse.instructorName}</div>
+                    <div>{newCourse.instructorProfession}</div>
                   </div>
                 </div>
               ))}

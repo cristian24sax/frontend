@@ -30,7 +30,7 @@ const AsideBar = () => {
     },
     {
       name: "Modulo de videos",
-      link: "",
+      link: "/dashboard/uploadVideo",
       icon: TbVideo,
       margin: true,
     },
