@@ -89,8 +89,8 @@ const AsideBar = () => {
           {menus.map((menu, i: any) => (
             <div key={i} className={`group flex flex-col gap-1 ${menu.margin && "mt-5"}`}>
               <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
-                <Link href={menu.link} className="flex items-center">
-                  {React.createElement(menu.icon, { size: 20 })}
+                <Link href={menu.link as any} className="flex items-center">
+                  {React.createElement(menu.icon, { size: 20  })}
                   <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
                     {menu.name}
                   </span>

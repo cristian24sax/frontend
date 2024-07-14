@@ -45,6 +45,10 @@ export default function VideoMain({ courseList }: props) {
   });
   const [courses, setCourses] = useState<NewCourse[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showModalVideo, setShowModalVideo] = useState(false);
+  const [response, setResponse] = useState(0);
+  const [videoDetails, setVideoDetails] = useState([{ name: "", description: "", PlayOrder: null as number | null, videoFile: null as File | null }]);
+
   const handleSelectionChange = (newSelection: any) => {
     setSelectedCourse(newSelection);
     console.log(selectedCourse, "course");
@@ -56,7 +60,7 @@ export default function VideoMain({ courseList }: props) {
     const file = e.target.files ? e.target.files[0] : null;
     setNewCourse((prevState: any) => ({
       ...prevState,
-      previousImage: file ? file.name : "",
+      previousImage: file,
     }));
     if (file) {
       const reader = new FileReader();
@@ -141,13 +145,87 @@ export default function VideoMain({ courseList }: props) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const { data } = await response.json();
+      setResponse(data.id);
       console.log("Success:", data);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
   }
+  const openModal = (course: any) => {
+    setShowModalVideo(true);
+  };
 
+  const closeModal = () => {
+    setShowModalVideo(false);
+  };
+  const handleVideoChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    if (e.target.files) {
+      const newVideoDetails = [...videoDetails];
+      newVideoDetails[index].videoFile = e.target.files[0];
+      setVideoDetails(newVideoDetails);
+    }
+  };
+
+  const handleAddVideo = () => {
+    setVideoDetails([...videoDetails, { name: "", description: "", PlayOrder: 0, videoFile: null }]);
+  };
+
+  const handleVideoDetailsChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    const { name, value } = e.target;
+    const newVideoDetails = [...videoDetails];
+    newVideoDetails[index][name] = value;
+    setVideoDetails(newVideoDetails);
+  };
+  const handleSendVideo = async (e: any) => {
+    e.preventDefault();
+    console.log(videoDetails, "detalle");
+    videoDetails.forEach((video) => {
+      const newCourseData = {
+        lessonId: response,
+        name: video.name,
+        userCreatorId: id,
+        description: video.description,
+        playOrder: video.PlayOrder,
+        courseProjectId: selectedCourse.courseProjectId,
+        videoFile: video.videoFile,
+      };
+      console.log(newCourseData, "data para enviar");
+      const formData = new FormData();
+      for (const key in newCourseData) {
+        if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
+          formData.append(key, (newCourseData as any)[key]);
+        }
+      }
+      try {
+        sendVideoList(formData);
+        setShowModalVideo(false);
+      } catch (error) {
+        console.error("Error saving course:", error);
+      }
+    });
+  };
+  async function sendVideoList(formData: FormData) {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // No incluyas "Content-Type" aquí
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Success del listado:", data);
+    } catch (error) {
+      console.error("Error sending time to endpoint:", error);
+    }
+  }
   return (
     <div className="p-4  h-full">
       <div className="flex items-center justify-between mb-4">
@@ -170,16 +248,90 @@ export default function VideoMain({ courseList }: props) {
               {courses.map((course) => (
                 <div key={course.name} className="bg-white rounded-lg shadow-md overflow-hidden">
                   <img src={imagePreview as any} alt={course.name} className="w-full h-48 object-cover" />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold">{course.name}</h3>
-                    <div>{newCourse.instructorName}</div>
-                    <div>{newCourse.instructorProfession}</div>
+                  <div className="p-4 flex">
+                    <div className="flex-grow">
+                      <h3 className="text-lg font-semibold">{course.name}</h3>
+                      <div>{course.instructorName}</div>
+                      <div>{course.instructorProfession}</div>
+                    </div>
+                    <div>
+                      <button className="mt-4 px-2 py-1 bg-blue-500 text-white rounded-sm hover:bg-blue-700" onClick={() => openModal(course)}>
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
+        {showModalVideo && selectedCourse && (
+          // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          //   <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8">
+          //     <h2 className="text-2xl font-semibold mb-4">Videos de {selectedCourse.name}</h2>
+          //     <div>
+          //       <input type="file" accept="video/*" multiple onChange={handleVideoChange} className="mb-4" />
+          //       {videos.length > 0 && (
+          //         <div>
+          //           <h3 className="text-lg font-semibold">Videos seleccionados:</h3>
+          //           <ul className="list-disc list-inside">
+          //             {videos.map((video, index) => (
+          //               <li key={index}>{video.name}</li>
+          //             ))}
+          //           </ul>
+          //         </div>
+          //       )}
+          //     </div>
+          //     <button className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-700" onClick={handleAddVideo}>
+          //       Agregar Video
+          //     </button>
+          //     <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
+          //       Cerrar
+          //     </button>
+          //   </div>
+          // </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">Videos de {selectedCourse.name}</h2>
+                <button className="p-2 bg-green-500 text-white rounded hover:bg-green-700" onClick={handleAddVideo}>
+                  Agregar Video
+                </button>
+              </div>
+              {videoDetails.map((videoDetail, index) => (
+                <div key={index} className="mb-4 p-4 bg-gray-100 rounded-lg">
+                  <table className="w-full mb-4">
+                    <tbody>
+                      <tr>
+                        <td className="pr-2">
+                          <input type="text" name="name" value={videoDetail.name} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Nombre del video" className="w-full p-2 border rounded" />
+                        </td>
+                        <td className="pr-2">
+                          <input type="text" name="description" value={videoDetail.description} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Descripción" className="w-full p-2 border rounded" />
+                        </td>
+                        <td className="pr-2">
+                          <input type="number" name="PlayOrder" value={videoDetail.PlayOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="orden de reproducción" className="w-full p-2 border rounded" />
+                        </td>
+                        <td>
+                          <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  {videoDetail.videoFile && <video src={URL.createObjectURL(videoDetail.videoFile)} controls className="w-full h-48" />}
+                </div>
+              ))}
+              <div className="flex gap-4">
+                <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
+                  Agregar Video
+                </button>
+                <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {showModal && (
           <div className=" fixed inset-0 bg-black bg-opacity-50 flex  mb-16 z-50 ">
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8 mb-16 h-full overflow-y-auto">
