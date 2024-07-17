@@ -14,7 +14,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
   const [checkSent, setCheckSent] = useState(false); // Estado para rastrear si handlecheck ya se llamó
-
+  console.log(value,'asd')
   async function sendTimeToEndpoint(seconds: number) {
     const roundedSeconds = Math.floor(seconds);
     try {
@@ -49,7 +49,8 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
           checkedState: 1,
         }),
       });
-      setCheckSent(true); 
+      setCheckSent(true);
+      // setHasBeenPlayed(value, true); // Actualizar el estado de hasBeenPlayed
     } catch (error) {
       console.error("Error sending check state to endpoint:", error);
     }
@@ -97,7 +98,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       const nextIndex = currentIndex + 1;
                       if (nextIndex < embedCode.length) {
                         setValue(embedCode[nextIndex].id);
-                        setCheckSent(false); 
+                        setCheckSent(false);
                       }
                     });
 

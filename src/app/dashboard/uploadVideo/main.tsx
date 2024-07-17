@@ -23,6 +23,17 @@ interface NewCourse {
   cvInstructor: string;
   instructorName: string;
   instructorProfession: string;
+  listLessonVideoDetailsResponses?: any[];
+  nameLessonOrder?: string;
+  imagePreview?: string | null;
+}
+
+interface VideoDetail {
+  id: number | null;
+  name: string;
+  description: string;
+  playOrder: number | null;
+  videoFile: File | null;
 }
 
 export default function VideoMain({ courseList }: Props) {
@@ -44,16 +55,17 @@ export default function VideoMain({ courseList }: Props) {
     cvInstructor: "",
     instructorName: "",
     instructorProfession: "",
+    imagePreview: null,
   });
   const [courses, setCourses] = useState<NewCourse[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showModalVideo, setShowModalVideo] = useState(false);
   const [response, setResponse] = useState(0);
-  const [videoDetails, setVideoDetails] = useState([{ id: null, name: "", description: "", playOrder: null as number | null, videoFile: null as File | null }]);
+  const [videoDetails, setVideoDetails] = useState<VideoDetail[]>([{ id: null, name: "", description: "", playOrder: null, videoFile: null }]);
   const [refresh, setRefresh] = useState(false);
 
   const handleSelectionChange = (newSelection: any) => {
     setSelectedCourse(newSelection);
+    setCourses([]); // Limpia los cursos cuando se cambia el curso seleccionado
   };
 
   const handleInputChange = (e: any) => {
@@ -69,41 +81,39 @@ export default function VideoMain({ courseList }: Props) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setNewCourse((prevState: any) => ({
+          ...prevState,
+          imagePreview: reader.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     } else {
-      setImagePreview(null);
+      setNewCourse((prevState: any) => ({
+        ...prevState,
+        imagePreview: null,
+      }));
     }
   };
 
   const removeImage = () => {
     setNewCourse((prevState: any) => ({
       ...prevState,
-      previousImage: "",
+      previousImage: null,
+      imagePreview: null,
     }));
-    setImagePreview(null);
   };
 
   const handleSaveCourse = async (e: any) => {
     e.preventDefault();
     const newCourseId = courses.length + 1;
-    const newCourseData = {
-      courseProjectId: selectedCourse.courseProjectId,
+    const newCourseData: NewCourse = {
+      ...newCourse,
+      courseProjectId: Number(selectedCourse.courseProjectId),
       courseId: selectedCourse.id,
       userCreatorId: id,
       id: newCourseId,
-      name: newCourse.name,
-      description: newCourse.description,
-      previousImage: newCourse.previousImage,
-      lessonOrder: newCourse.lessonOrder,
-      objectives: newCourse.objectives,
-      bibliography: newCourse.bibliography,
-      cvInstructor: newCourse.cvInstructor,
-      instructorName: newCourse.instructorName,
-      instructorProfession: newCourse.instructorProfession,
     };
-    console.log(newCourseData, "data del form");
+
     const formData = new FormData();
     for (const key in newCourseData) {
       if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -120,6 +130,10 @@ export default function VideoMain({ courseList }: Props) {
     setCourses([...courses, newCourseData]);
     setShowModal(false);
     setNewCourse({
+      courseProjectId: 0,
+      courseId: 0,
+      userCreatorId: 0,
+      id: 0,
       name: "",
       description: "",
       previousImage: null,
@@ -129,6 +143,7 @@ export default function VideoMain({ courseList }: Props) {
       cvInstructor: "",
       instructorName: "",
       instructorProfession: "",
+      imagePreview: null,
     });
   };
 
@@ -157,7 +172,7 @@ export default function VideoMain({ courseList }: Props) {
   const openModal = (course: any) => {
     setResponse(course.id);
     const videoFilters = courses.find((video) => video.id === course.id);
-    setVideoDetails(videoFilters?.["listLessonVideoDetailsResponses"] || []);
+    setVideoDetails(videoFilters?.listLessonVideoDetailsResponses || []);
     setShowModalVideo(true);
   };
 
@@ -178,10 +193,27 @@ export default function VideoMain({ courseList }: Props) {
   };
 
   const handleVideoDetailsChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    e.preventDefault();
     const { name, value } = e.target;
     const newVideoDetails = [...videoDetails];
-    newVideoDetails[index][name] = value;
-    setVideoDetails(newVideoDetails);
+    if (name in newVideoDetails[index]) {
+      (newVideoDetails[index] as any)[name] = value;
+      setVideoDetails(newVideoDetails);
+    }
+  };
+
+  const handleMultiVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const newVideoDetails = files.map((file) => ({
+        id: null,
+        name: file.name,
+        description: "",
+        playOrder: null,
+        videoFile: file,
+      }));
+      setVideoDetails(newVideoDetails);
+    }
   };
 
   const handleSendVideo = async (e: any) => {
@@ -257,7 +289,7 @@ export default function VideoMain({ courseList }: Props) {
     if (selectedCourse) {
       fetchFilterCoursesList();
     }
-  }, [selectedCourse,refresh]);
+  }, [selectedCourse.id, refresh]);
 
   return (
     <div className="p-4 h-full">
@@ -280,7 +312,7 @@ export default function VideoMain({ courseList }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {courses.map((course) => (
                 <div key={course.name} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img src={(imagePreview as any) || course.previousImage} alt={course.name} className="w-full h-48 object-cover" />
+                  <img src={course.imagePreview || (course.previousImage as any)} alt={course.name} className="w-full h-48 object-cover" />
                   <div className="p-4 flex">
                     <div className="flex-grow">
                       <h3 className="text-lg font-semibold">{course.name}</h3>
@@ -299,13 +331,23 @@ export default function VideoMain({ courseList }: Props) {
           )}
         </div>
         {showModalVideo && selectedCourse && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8">
-              <div className="flex justify-between items-center mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex z-50">
+            <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 pt-0 mx-auto my-8 mb-16 h-[80%] overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
                 <h2 className="text-2xl font-semibold">Videos de {selectedCourse.name}</h2>
-                <button className="p-2 bg-green-500 text-white rounded hover:bg-green-700" onClick={handleAddVideo}>
-                  Agregar información de Video
-                </button>
+
+                <div className="flex gap-4">
+                  <label className="p-2 mt-4 bg-green-500 text-white rounded hover:bg-green-700">
+                    <span>Agregar información de Video</span>
+                    <input type="file" accept="video/*" multiple onChange={handleMultiVideoChange} className="w-full p-2 border rounded hidden" />
+                  </label>
+                  <button className="p-2 mt-4 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
+                    Guardar
+                  </button>
+                  <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
+                    Cerrar
+                  </button>
+                </div>
               </div>
               {videoDetails.map((videoDetail, index) => (
                 <div key={index} className="mb-4 p-4 bg-gray-100 rounded-lg">
@@ -319,25 +361,17 @@ export default function VideoMain({ courseList }: Props) {
                           <input type="text" name="description" value={videoDetail.description} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Descripción" className="w-full p-2 border rounded" />
                         </td>
                         <td className="pr-2">
-                          <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="orden de reproducción" className="w-full p-2 border rounded" />
+                          <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
                         </td>
-                        <td>
-                          <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
-                        </td>
+                        {/* <td>
+                <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
+              </td> */}
                       </tr>
                     </tbody>
                   </table>
                   {videoDetail.videoFile && <video src={URL.createObjectURL(videoDetail.videoFile)} controls className="w-full h-48" />}
                 </div>
               ))}
-              <div className="flex gap-4">
-                <button className="p-2 mt-4 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
-                  Guardar
-                </button>
-                <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
-                  Cerrar
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -356,9 +390,9 @@ export default function VideoMain({ courseList }: Props) {
                 </div>
                 <div className="mb-4">
                   <h4>Imagen Previa</h4>
-                  {imagePreview ? (
+                  {newCourse.imagePreview ? (
                     <div className="relative">
-                      <img src={imagePreview} alt="Preview" className="max-h-[6rem] rounded border border-gray-300" />
+                      <img src={newCourse.imagePreview} alt="Preview" className="max-h-[6rem] rounded border border-gray-300" />
                       <button type="button" onClick={removeImage} className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-700 focus:outline-none">
                         ×
                       </button>

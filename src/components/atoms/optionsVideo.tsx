@@ -1,7 +1,7 @@
 "use client";
 import { VideoData } from "@/interfaces/video.interface";
 import { useVideoStore } from "@/store/ui/changeVideo";
-import { useEffect } from "react";
+import { useState } from "react";
 
 interface Props {
   item: VideoData;
@@ -11,13 +11,14 @@ interface Props {
 
 export const OptionsComponent = ({ item, index, length }: Props) => {
   const { setValue, value } = useVideoStore();
+  const [hasBeenPlayed, setHasBeenPlayed] = useState(item.hasBeenPlayed);
   const dataUser = localStorage.getItem("dataUser");
   const { token, id: idPerson } = JSON.parse(dataUser as string);
   const handleOptions = (id: number) => {
     setValue(id);
   };
   const handlecheck = async (id: number) => {
-    const changeState = item.hasBeenPlayed === 1 ? 0 : 1;
+    const changeState = hasBeenPlayed === 1 ? 0 : 1;
     try {
       const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/user/check`, {
         method: "POST",
@@ -32,6 +33,7 @@ export const OptionsComponent = ({ item, index, length }: Props) => {
         }),
       });
       if (resp.status === 200) {
+        setHasBeenPlayed(changeState);
         item.hasBeenPlayed = changeState;
       }
     } catch (error) {
@@ -42,10 +44,10 @@ export const OptionsComponent = ({ item, index, length }: Props) => {
   return (
     <div className={`relative p-2 transition-colors cursor-pointer w-full ${value === item.id ? "bg-neutral-900 text-white" : "bg-white text-black"} border-t-2`}>
       <div className="absolute top-[4px] left-[4px] flex flex-col items-center h-full">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center cursor-pointer ${item.hasBeenPlayed === 1 ? "bg-green-500" : value === item.id ? "bg-blue-500" : "bg-gray-300"}`} onClick={() => handlecheck(item.id)}>
-          <span className={`text-xs ${item.hasBeenPlayed === 1 ? "text-white" : "text-white"}`}>{index + 1}</span>
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center cursor-pointer ${hasBeenPlayed === 1 ? "bg-green-500" : value === item.id ? "bg-blue-500" : "bg-gray-300"}`} onClick={() => handlecheck(item.id)}>
+          <span className={`text-xs ${hasBeenPlayed === 1 ? "text-white" : "text-white"}`}>{index + 1}</span>
         </div>
-        {index !== length - 1 && <div className={`h-full w-0.5 ${item.hasBeenPlayed === 1 ? "bg-green-500" : value === item.id ? "bg-blue-500" : "bg-gray-300"}`}></div>}
+        {index !== length - 1 && <div className={`h-full w-0.5 ${hasBeenPlayed === 1 ? "bg-green-500" : value === item.id ? "bg-blue-500" : "bg-gray-300"}`}></div>}
       </div>
       <div className="pl-6" onClick={() => handleOptions(item.id)}>
         <div className={`font-medium text-sm ${value === item.id ? "text-white" : "text-gray-900"}`}>{item.name}</div>
