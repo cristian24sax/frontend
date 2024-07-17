@@ -223,7 +223,7 @@ export default function VideoMain({ courseList }: Props) {
         lessonId: response,
         name: video.name,
         userCreatorId: id,
-        description: video.description,
+        description: video.name,
         playOrder: video.playOrder,
         courseProjectId: selectedCourse.courseProjectId,
         videoFile: video.videoFile,
@@ -357,9 +357,9 @@ export default function VideoMain({ courseList }: Props) {
                         <td className="pr-2">
                           <input type="text" name="name" value={videoDetail.name} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Nombre del video" className="w-full p-2 border rounded" />
                         </td>
-                        <td className="pr-2">
+                        {/* <td className="pr-2">
                           <input type="text" name="description" value={videoDetail.description} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Descripción" className="w-full p-2 border rounded" />
-                        </td>
+                        </td> */}
                         <td className="pr-2">
                           <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
                         </td>

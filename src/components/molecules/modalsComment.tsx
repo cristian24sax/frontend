@@ -16,7 +16,7 @@ export function CommentModal({ isOpen, onClose, onSave }: CommentModalProps) {
   useEffect(() => {
     if (!isOpen) {
       setComment("");
-      setHours("");
+      setHours("0");
       setMinutes("");
       setSeconds("");
     }
@@ -44,8 +44,8 @@ export function CommentModal({ isOpen, onClose, onSave }: CommentModalProps) {
       <div className="bg-white rounded-lg p-6 w-96">
         <h2 className="text-xl font-bold mb-4">Escribe tu duda o comentario</h2>
         <textarea className="w-full h-32 p-2 border rounded-lg mb-4" value={comment} onChange={(e) => setComment(e.target.value)}></textarea>
-        <div className="flex justify-between mb-4">
-          <input type="number" placeholder="Horas" className="w-1/3 p-2 border rounded-lg" value={hours} onChange={(e) => setHours(e.target.value)} />
+        <div className="flex gap-2 mb-4">
+          {/* <input type="number" placeholder="Horas" className="w-1/3 p-2 border rounded-lg" value={hours} onChange={(e) => setHours(e.target.value)} /> */}
           <input type="number" placeholder="Minutos" className="w-1/3 p-2 border rounded-lg mx-2" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
           <input type="number" placeholder="Segundos" className="w-1/3 p-2 border rounded-lg" value={seconds} onChange={(e) => setSeconds(e.target.value)} />
         </div>

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Course, Menu } from "@/interfaces/menu.interface";
 import { useBearStore } from "@/store/ui";
 import Link from "next/link";
@@ -86,11 +86,11 @@ const AsideBar = () => {
           <HiMenuAlt3 size={26} className="cursor-pointer" onClick={() => setOpen(!open)} />
         </div>
         <div className="mt-4 flex flex-col gap-4 relative">
-          {menus.map((menu, i: any) => (
+          {menus.map((menu, i) => (
             <div key={i} className={`group flex flex-col gap-1 ${menu.margin && "mt-5"}`}>
               <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
                 <Link href={menu.link as any} className="flex items-center">
-                  {React.createElement(menu.icon, { size: 20  })}
+                  {React.createElement(menu.icon)}
                   <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
                     {menu.name}
                   </span>
@@ -99,9 +99,9 @@ const AsideBar = () => {
               </div>
               {menu.submenus && (
                 <div className="ml-12">
-                  {menu.submenus.map((sub, subIndex) => (
-                    <Link href={"/dashboard"}>
-                      <div key={subIndex} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
+                  {menu?.submenus?.map((sub) => (
+                    <Link href={"/dashboard"} key={sub.id}>
+                      <div key={sub.id} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
                         <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
                           {sub.name}
                         </span>
