@@ -8,7 +8,6 @@ import CommentModalClient from "@/components/atoms/buttonModal";
 export default async function VideosCourses({ params }: any) {
   const { id } = params;
   const { data } = await fetchCourseVideo(id);
-
   return (
     <>
       <Link href={`/dashboard/${id}`}>

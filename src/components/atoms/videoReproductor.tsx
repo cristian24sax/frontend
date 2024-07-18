@@ -14,7 +14,6 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
   const [checkSent, setCheckSent] = useState(false); // Estado para rastrear si handlecheck ya se llamó
-  console.log(value,'asd')
   async function sendTimeToEndpoint(seconds: number) {
     const roundedSeconds = Math.floor(seconds);
     try {
@@ -56,7 +55,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
     }
   };
 
-  const throttledSendTimeToEndpoint = throttle(sendTimeToEndpoint, 30000);
+  const throttledSendTimeToEndpoint = throttle(sendTimeToEndpoint, 3000);
 
   useEffect(() => {
     if (containerRef.current && embedCode.length > 0) {
@@ -125,7 +124,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
   }, [embedCode, value, setValue, checkSent]);
 
   useEffect(() => {
-    const lastVideo = embedCode.find((item) => item.isLastVideoSeen === 1);
+    const lastVideo = embedCode.find((item) => item.isLastVideoSeen === true);
     if (lastVideo) {
       setValue(lastVideo.id);
     } else if (embedCode.length > 0) {
