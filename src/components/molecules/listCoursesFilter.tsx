@@ -1,8 +1,8 @@
 import { DataCourses } from "@/interfaces/dataCourses";
 import "swiper/css";
 import { Swiper, SwiperSlide } from "swiper/react";
-import CardCourseComponent from "../atoms/cardCourse";
 import Link from "next/link";
+import { CardCourseComponent } from "../atoms/cardCourse";
 interface props {
   courses: DataCourses[];
   error: any;
