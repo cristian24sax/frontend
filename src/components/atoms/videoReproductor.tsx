@@ -98,6 +98,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       if (nextIndex < embedCode.length) {
                         setValue(embedCode[nextIndex].id);
                         setCheckSent(false);
+                        video.time(0)
                       }
                     });
 
