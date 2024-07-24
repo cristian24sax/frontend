@@ -7,13 +7,10 @@ interface AuthLayoutProps {
 }
 
 export default function DashboardLayout({ children }: AuthLayoutProps) {
-  
   return (
     <main className="h-[100vh] flex overflow-hidden">
-      <AsideBar children={children} />
-      <main className="flex-grow overflow-auto p-5 pt-0">
-        {children}
-      </main>
+      <AsideBar />
+      <main className="flex-grow overflow-auto p-5 pt-0">{children}</main>
     </main>
   );
 }

@@ -9,17 +9,12 @@ import { MdOutlineDashboard } from "react-icons/md";
 import { TbReportAnalytics, TbVideo } from "react-icons/tb";
 import "./navbar.css";
 import { useRouter } from "next/navigation";
+
 const AsideBar = () => {
   const [open, setOpen] = useState(true);
   const [submenu, setSubMenu] = useState<Course[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
-
-  const dataUser = localStorage.getItem("dataUser");
-  if (!dataUser) {
-    throw new Error("No user data found");
-  }
-
-  const { token } = JSON.parse(dataUser as string);
   const { setInputValueMenu } = useBearStore();
 
   const menus: Menu[] = [
@@ -50,6 +45,7 @@ const AsideBar = () => {
   ];
 
   const fetchData = async () => {
+    if (!token) return;
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, {
         method: "GET",
@@ -71,8 +67,18 @@ const AsideBar = () => {
   };
 
   useEffect(() => {
+    const dataUser = localStorage.getItem("dataUser");
+    if (dataUser) {
+      const parsedData = JSON.parse(dataUser as string);
+      setToken(parsedData.token);
+    } else {
+      router.push("/auth/login", { scroll: false });
+    }
+  }, [router]);
+
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [token]);
 
   menus[0].submenus = submenu;
 
