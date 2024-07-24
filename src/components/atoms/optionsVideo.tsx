@@ -2,6 +2,7 @@
 import { VideoData } from "@/interfaces/video.interface";
 import { useVideoStore } from "@/store/ui/changeVideo";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
   item: VideoData;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export const OptionsComponent = ({ item, index, length }: Props) => {
+  const router = useRouter();
   const { setValue, value } = useVideoStore();
   const [hasBeenPlayed, setHasBeenPlayed] = useState<boolean>(item.hasBeenPlayed);
   const dataUser = localStorage.getItem("dataUser");
@@ -29,9 +31,13 @@ export const OptionsComponent = ({ item, index, length }: Props) => {
         body: JSON.stringify({
           lessonVideoId: id,
           userPersonId: idPerson,
-          checkedState: changeState ? 0 : 1,
+          checkedState: changeState ? 1 : 0,
         }),
       });
+      if (resp.status === 401) {
+        router.push("/auth/login", { scroll: false });
+        throw new Error("Failed to fetch data");
+      }
       if (resp.status === 200) {
         setHasBeenPlayed(changeState);
         item.hasBeenPlayed = changeState;

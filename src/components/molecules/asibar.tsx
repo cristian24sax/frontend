@@ -8,10 +8,11 @@ import { HiMenuAlt3 } from "react-icons/hi";
 import { MdOutlineDashboard } from "react-icons/md";
 import { TbReportAnalytics, TbVideo } from "react-icons/tb";
 import "./navbar.css";
-
+import { useRouter } from "next/navigation";
 const AsideBar = () => {
   const [open, setOpen] = useState(true);
   const [submenu, setSubMenu] = useState<Course[]>([]);
+  const router = useRouter();
 
   const dataUser = localStorage.getItem("dataUser");
   if (!dataUser) {
@@ -58,10 +59,10 @@ const AsideBar = () => {
         },
       });
 
-      if (!response.ok) {
+      if (response.status === 401) {
+        router.push("/auth/login", { scroll: false });
         throw new Error("Failed to fetch data");
       }
-
       const { data }: { data: Course[] } = await response.json();
       setSubMenu(data);
     } catch (error) {

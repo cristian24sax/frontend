@@ -98,13 +98,13 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       if (nextIndex < embedCode.length) {
                         setValue(embedCode[nextIndex].id);
                         setCheckSent(false);
-                        video.time(0)
+                        video.time(0);
                       }
                     });
 
                     video.bind("timechange", (seconds: number) => {
                       time(seconds);
-                      throttledSendTimeToEndpoint(seconds);
+                      if (value !== null) throttledSendTimeToEndpoint(seconds);
 
                       const duration = video.duration();
                       if (duration - seconds <= 10 && !checkSent) {
