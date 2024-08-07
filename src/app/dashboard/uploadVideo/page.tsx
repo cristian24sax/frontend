@@ -1,11 +1,8 @@
-import { fetchCourseList } from "../services";
-import VideoMain from "./main";
+import { fetchCourseList, fetchCourseListAdmin } from "../services";
+import TableVideoComponent from "./tableVideo";
 
 export default async function Component() {
-  const {data} = await fetchCourseList();
-  return (
-    <>
-      <VideoMain courseList={data} />
-    </>
-  );
+  const { data: courseList } = await fetchCourseList();
+  const { data: courseListAdmin } = await fetchCourseListAdmin();
+  return <TableVideoComponent courseList={courseList} courserListAdmin={courseListAdmin} />;
 }
