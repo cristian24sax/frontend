@@ -36,7 +36,7 @@ interface VideoDetail {
   videoFile: File | null;
 }
 
-export default function VideoMain({ courseList }: Props) {
+export default function NewCourse({ courseList }: Props) {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
   const [selectedCourse, setSelectedCourse] = useState(courseList[0]);
@@ -63,7 +63,10 @@ export default function VideoMain({ courseList }: Props) {
   const [videoDetails, setVideoDetails] = useState<VideoDetail[]>([{ id: null, name: "", description: "", playOrder: null, videoFile: null }]);
   const [refresh, setRefresh] = useState(false);
   const [courseNew, setCourseNew] = useState("");
-
+  const [variable, setVariable] = useState({
+    courseProjectId: 0,
+    id: 0,
+  });
   const handleSelectionChange = (newSelection: any) => {
     setSelectedCourse(newSelection);
     setCourses([]); // Limpia los cursos cuando se cambia el curso seleccionado
@@ -109,12 +112,12 @@ export default function VideoMain({ courseList }: Props) {
     const newCourseId = courses.length + 1;
     const newCourseData: NewCourse = {
       ...newCourse,
-      courseProjectId: Number(selectedCourse.courseProjectId),
-      courseId: selectedCourse.id,
+      courseProjectId: variable.courseProjectId,
+      courseId: variable.id,
       userCreatorId: id,
       id: newCourseId,
     };
-
+    console.log(newCourseData, "data");
     const formData = new FormData();
     for (const key in newCourseData) {
       if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -164,7 +167,7 @@ export default function VideoMain({ courseList }: Props) {
 
       const { data } = await response.json();
       setResponse(data.id);
-      console.log("Success:", data);
+      console.log("Successss:", data);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
@@ -179,18 +182,6 @@ export default function VideoMain({ courseList }: Props) {
 
   const closeModal = () => {
     setShowModalVideo(false);
-  };
-
-  const handleVideoChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    if (e.target.files) {
-      const newVideoDetails = [...videoDetails];
-      newVideoDetails[index].videoFile = e.target.files[0];
-      setVideoDetails(newVideoDetails);
-    }
-  };
-
-  const handleAddVideo = () => {
-    setVideoDetails([...videoDetails, { id: null, name: "", description: "", playOrder: 0, videoFile: null }]);
   };
 
   const handleVideoDetailsChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
@@ -226,7 +217,7 @@ export default function VideoMain({ courseList }: Props) {
         userCreatorId: id,
         description: video.name,
         playOrder: video.playOrder,
-        courseProjectId: selectedCourse.courseProjectId,
+        courseProjectId: variable.courseProjectId,
         videoFile: video.videoFile,
       };
       const formData = new FormData();
@@ -266,25 +257,6 @@ export default function VideoMain({ courseList }: Props) {
     }
   }
 
-  const fetchFilterCoursesList = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/list-details?CourseId=${selectedCourse.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const { data } = await response.json();
-      setCourses(data);
-    } catch (error: any) {
-      console.error("Error fetching courses:", error);
-    }
-  };
   const createCourse = async () => {
     const request = {
       name: courseNew,
@@ -304,21 +276,19 @@ export default function VideoMain({ courseList }: Props) {
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      setCourseNew('')
+      setCourseNew("");
+      console.log(response, "respuesta");
+      const { data } = await response.json();
+      const { courseProjectId, id } = data;
+      setVariable({ courseProjectId, id });
+      // setVariable({ courseProjectId, id });
     } catch (error: any) {
       console.error("Error fetching courses:", error);
     }
   };
 
-  useEffect(() => {
-    if (selectedCourse) {
-      fetchFilterCoursesList();
-    }
-  }, [selectedCourse.id, refresh]);
   const handleAddCourse = (e: any) => {
-    // e.prevent.default();
     createCourse();
-    
   };
   return (
     <div className="p-4 h-full">
@@ -338,9 +308,6 @@ export default function VideoMain({ courseList }: Props) {
         </div>
 
         <div className="flex items-center justify-between my-4">
-          <div className="w-1/2">
-            <SelectInput onSelectionChange={handleSelectionChange} options={courseList} />
-          </div>
           <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" disabled={!selectedCourse} onClick={() => setShowModal(true)}>
             <div className="p-4 text-center flex">
               <PlusIcon className="w-8 h-8 text-primary" />
@@ -423,7 +390,7 @@ export default function VideoMain({ courseList }: Props) {
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex mb-16 z-50 ">
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8 mb-16 h-full overflow-y-auto">
-              <h2 className="text-2xl font-semibold mb-4">Nuevo Curso</h2>
+              <h2 className="text-2xl font-semibold mb-4">Nueva clase</h2>
               <form onSubmit={handleSaveCourse} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="mb-4">
                   <h4>Nombre</h4>

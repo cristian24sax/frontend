@@ -1,7 +1,7 @@
 "use client";
 import VideoMain from "./main";
 import { useState } from "react";
-// import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import NewCourse from "./newCourse";
 interface TableVideoProps {
   courseList: any[];
   courserListAdmin: any[];
@@ -20,7 +20,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
         <button className="pt-5" onClick={handleNewCourseClick}>
           Atras
         </button>
-        <VideoMain courseList={courseList} />
+        <NewCourse courseList={courseList} />
       </div>
     );
   }
