@@ -212,7 +212,7 @@ export default function NewCourse({ courseList }: Props) {
     e.preventDefault();
     videoDetails.forEach((video) => {
       const newCourseData = {
-        lessonId: response,
+        lessonId: 117,
         name: video.name,
         userCreatorId: id,
         description: video.name,

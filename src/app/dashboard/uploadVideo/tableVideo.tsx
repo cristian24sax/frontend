@@ -1,5 +1,4 @@
 "use client";
-import VideoMain from "./main";
 import { useState } from "react";
 import NewCourse from "./newCourse";
 interface TableVideoProps {
@@ -24,6 +23,31 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
       </div>
     );
   }
+  const handleDelete = async (course: any) => {
+    console.log(course, "delete");
+    const { id, courseProjectId } = course;
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/${id}/${courseProjectId}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Course deleted:", result);
+      return result;
+    } catch (error) {
+      console.error("Failed to delete the course:", error);
+      throw error;
+    }
+  };
   return (
     <div className="w-full p-5">
       <header className="flex items-center justify-between border-b pb-4 mb-6">
@@ -54,7 +78,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
                       <FilePenIcon className="h-4 w-4" />
                       <span className="sr-only">Editar</span>
                     </button>
-                    <button className="p-2 text-red-600 hover:text-red-900">
+                    <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDelete(course)}>
                       <Trash2Icon className="h-4 w-4" />
                       <span className="sr-only">Eliminar</span>
                     </button>
