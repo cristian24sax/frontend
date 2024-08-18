@@ -405,6 +405,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
       const result = await response.json();
       toast.success("Video eliminado exitosamente");
+      setVideoDetails((prevCourses) => prevCourses.filter((item) => item.id !== id));
 
       return result;
     } catch (error) {
