@@ -1,6 +1,6 @@
 "use client";
 import { CourseList } from "@/interfaces/dataCourseList";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, use, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Trash2Icon } from "./tableVideo";
 
@@ -9,7 +9,7 @@ interface Props {
   courseProjectId?: number;
   id?: number;
   isEdit: boolean;
-  courseList: CourseList[];
+  courseDetailList: any[];
 }
 
 interface NewCourse {
@@ -17,14 +17,14 @@ interface NewCourse {
   courseId?: number;
   userCreatorId?: number;
   id?: number;
-  name: string;
-  description: string;
-  previousImage: File | null;
-  lessonOrder: number;
-  objectives: string;
-  bibliography: string;
-  cvInstructor: string;
-  instructorName: string;
+  name?: string;
+  description?: string;
+  previousImage?: File | null;
+  lessonOrder?: number;
+  objectives?: string;
+  bibliography?: string;
+  cvInstructor?: string;
+  instructorName?: string;
   instructorProfession: string;
   listLessonVideoDetailsResponses?: any[];
   nameLessonOrder?: string;
@@ -39,7 +39,7 @@ interface VideoDetail {
   videoFile: File | null;
 }
 
-export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCourse }: Props) {
+export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCourse, courseDetailList }: Props) {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
   const [showModal, setShowModal] = useState(false);
@@ -59,6 +59,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     instructorProfession: "",
     imagePreview: null,
   });
+
   const [courses, setCourses] = useState<NewCourse[]>([]);
   const [showModalVideo, setShowModalVideo] = useState(false);
   const [response, setResponse] = useState(0);
@@ -70,7 +71,29 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     courseProjectId: 0,
     id: 0,
   });
+  const getDetailCourse = async () => {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson?CourseId=${idCourse}`;
 
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      setCourses(result.data);
+    } catch (error) {
+      console.error("Failed to delete the course:", error);
+      throw error;
+    }
+  };
   const handleInputChange = (e: any) => {
     setNewCourse({ ...newCourse, [e.target.name]: e.target.value });
   };
@@ -108,15 +131,14 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
   const handleSaveCourse = async (e: any) => {
     e.preventDefault();
-    const newCourseId = response;
+    const newCourseId = courses.length + 1;
     const newCourseData: NewCourse = {
       ...newCourse,
-      courseProjectId: variable.courseProjectId,
-      courseId: variable.id,
+      courseProjectId: variable.courseProjectId || courseProjectId,
+      courseId: variable.id || idCourse,
       userCreatorId: id,
       id: newCourseId,
     };
-    console.log(newCourseData, "data");
     const formData = new FormData();
     for (const key in newCourseData) {
       if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -165,21 +187,19 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
 
       const { data } = await response.json();
-      console.log(data.id, "id de response send video");
+
       setResponse(data.id);
-      console.log("Successss:", data);
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
   }
 
   const openModal = (course: any) => {
-    // setResponse(course.id);
-    getListVideo();
-    console.log(courses, "courses");
-    const videoFilters = courses.find((video) => video.id === course.id);
-    console.log(videoFilters, "q hay");
-    setVideoDetails(videoFilters?.listLessonVideoDetailsResponses || []);
+    getListVideo(course.id);
+    if (isEdit) {
+      setResponse(course.id);
+    }
     setShowModalVideo(true);
   };
 
@@ -211,9 +231,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     }
   };
 
-  async function getListVideo() {
+  async function getListVideo(value: number) {
     try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/listByLessonId?LessonId=${response}`, {
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/listByLessonId?LessonId=${value}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -226,7 +246,6 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
       const { data } = await resp.json();
       setVideoDetails(data);
-      console.log("Successss list video:", data);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
@@ -240,10 +259,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         userCreatorId: id,
         description: video.name,
         playOrder: video.playOrder,
-        courseProjectId: variable.courseProjectId,
+        courseProjectId: variable.courseProjectId || courseProjectId,
         videoFile: video.videoFile,
       };
-      console.log(response, "response");
       const formData = new FormData();
       for (const key in newCourseData) {
         if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -273,9 +291,8 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
-      setRefresh(true);
-      console.log("Success del listado:", data);
+      await response.json();
+      // setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Error sending time to endpoint:", error);
     }
@@ -305,6 +322,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       const { data } = await response.json();
       const { courseProjectId, id } = data;
       setVariable({ courseProjectId, id });
+      setRefresh((prev) => !prev);
       toast.success("Curso creado exitosamente");
     } catch (error: any) {
       console.error("Error fetching courses:", error);
@@ -345,11 +363,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleEditCourse = (e: any) => {
     EditCourse();
   };
-  const handleDeleteClass = async () => {
-    console.log("asd");
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${response}`;
+  const handleDeleteClass = async (id: number) => {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${id}`;
     const rsp = response;
-    console.log(courses, "courses delete");
     try {
       const response = await fetch(url, {
         method: "DELETE",
@@ -364,8 +380,8 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
       const result = await response.json();
       toast.success("Clase eliminado exitosamente");
-      setCourses((prevCourses) => prevCourses.filter((item) => item.id !== rsp));
-
+      // setCourses((prevCourses) => prevCourses.filter((item) => item.id !== rsp));
+      setRefresh((prev) => !prev);
       return result;
     } catch (error) {
       console.error("Failed to delete the course:", error);
@@ -396,6 +412,11 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       throw error;
     }
   };
+  useEffect(() => {
+    if (idCourse) {
+      getDetailCourse();
+    }
+  }, [refresh]);
   return (
     <div className="p-4 h-full">
       <h3 className="border-b-2 text-2xl">{`${isEdit ? "Editar curso" : "Nuevo curso"}`}</h3>
@@ -409,11 +430,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
             placeholder="Agregar curso"
             className="p-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {!isEdit && !isContent && (
-            <button onClick={isEdit ? handleEditCourse : handleAddCourse} className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {isEdit ? "Guardar" : "Agregar curso"}
-            </button>
-          )}
+          <button onClick={isEdit ? handleEditCourse : handleAddCourse} className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {isEdit ? "Guardar" : "Agregar curso"}
+          </button>
         </div>
         {!isEdit && isContent}
         <div className="flex items-center justify-between my-4">
@@ -441,7 +460,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                       <div>{course.instructorProfession}</div>
                     </div>
                     <div className="">
-                      <button className="p-2 text-red-600 hover:text-red-900" onClick={handleDeleteClass}>
+                      <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteClass(course.id as number)}>
                         <Trash2Icon className="h-4 w-4" />
                         <span className="sr-only">Eliminar</span>
                       </button>

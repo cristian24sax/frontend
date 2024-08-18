@@ -14,6 +14,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
   const [showEditId, setShowEditId] = useState(0);
   const [showEditcourseProjectId, setShowEditcourseProjectId] = useState(0);
   const [tableCourse, setTableCourse] = useState<any[]>(courserListAdmin);
+  const [courseDetailList, setCourseDetailList] = useState<any[]>([]);
   const handleNewCourseClick = (event: any) => {
     event.preventDefault();
     setShowVideoMain(!showVideoMain);
@@ -33,7 +34,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
         <button className="pt-5" onClick={handleNewCourseClick}>
           Atras
         </button>
-        <NewCourse courseList={courseList} isEdit={false} />
+        <NewCourse courseDetailList={courseList} isEdit={false} />
       </div>
     );
   }
@@ -43,7 +44,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
         <button className="pt-5" onClick={handleEditCourseClick}>
           Atras
         </button>
-        <NewCourse courseList={courseList} isEdit={true} nameEdit={showEditName} id={showEditId} courseProjectId={showEditcourseProjectId} />
+        <NewCourse courseDetailList={courseDetailList} isEdit={true} nameEdit={showEditName} id={showEditId} courseProjectId={showEditcourseProjectId} />
       </div>
     );
   }
