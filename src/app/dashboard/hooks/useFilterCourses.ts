@@ -29,7 +29,6 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
           "Content-Type": "application/json",
         },
       });
-
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }

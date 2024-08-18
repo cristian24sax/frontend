@@ -1,11 +1,14 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
-import SelectInput from "@/components/atoms/selectInput";
 import { CourseList } from "@/interfaces/dataCourseList";
-import { InputComponent } from "@/components/atoms";
-import { Button, Input, Label, Textarea } from "@headlessui/react";
+import { ChangeEvent, useState } from "react";
+import { Toaster, toast } from "sonner";
+import { Trash2Icon } from "./tableVideo";
 
 interface Props {
+  nameEdit?: string;
+  courseProjectId?: number;
+  id?: number;
+  isEdit: boolean;
   courseList: CourseList[];
 }
 
@@ -36,10 +39,9 @@ interface VideoDetail {
   videoFile: File | null;
 }
 
-export default function NewCourse({ courseList }: Props) {
+export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCourse }: Props) {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
-  const [selectedCourse, setSelectedCourse] = useState(courseList[0]);
   const [showModal, setShowModal] = useState(false);
   const [newCourse, setNewCourse] = useState<NewCourse>({
     courseProjectId: 0,
@@ -62,15 +64,12 @@ export default function NewCourse({ courseList }: Props) {
   const [response, setResponse] = useState(0);
   const [videoDetails, setVideoDetails] = useState<VideoDetail[]>([{ id: null, name: "", description: "", playOrder: null, videoFile: null }]);
   const [refresh, setRefresh] = useState(false);
-  const [courseNew, setCourseNew] = useState("");
+  const [isContent, setIsContent] = useState(false);
+  const [courseNew, setCourseNew] = useState(nameEdit || "");
   const [variable, setVariable] = useState({
     courseProjectId: 0,
     id: 0,
   });
-  const handleSelectionChange = (newSelection: any) => {
-    setSelectedCourse(newSelection);
-    setCourses([]); // Limpia los cursos cuando se cambia el curso seleccionado
-  };
 
   const handleInputChange = (e: any) => {
     setNewCourse({ ...newCourse, [e.target.name]: e.target.value });
@@ -109,7 +108,7 @@ export default function NewCourse({ courseList }: Props) {
 
   const handleSaveCourse = async (e: any) => {
     e.preventDefault();
-    const newCourseId = courses.length + 1;
+    const newCourseId = response;
     const newCourseData: NewCourse = {
       ...newCourse,
       courseProjectId: variable.courseProjectId,
@@ -166,6 +165,7 @@ export default function NewCourse({ courseList }: Props) {
       }
 
       const { data } = await response.json();
+      console.log(data.id, "id de response send video");
       setResponse(data.id);
       console.log("Successss:", data);
     } catch (error) {
@@ -174,8 +174,11 @@ export default function NewCourse({ courseList }: Props) {
   }
 
   const openModal = (course: any) => {
-    setResponse(course.id);
+    // setResponse(course.id);
+    getListVideo();
+    console.log(courses, "courses");
     const videoFilters = courses.find((video) => video.id === course.id);
+    console.log(videoFilters, "q hay");
     setVideoDetails(videoFilters?.listLessonVideoDetailsResponses || []);
     setShowModalVideo(true);
   };
@@ -208,11 +211,31 @@ export default function NewCourse({ courseList }: Props) {
     }
   };
 
+  async function getListVideo() {
+    try {
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/listByLessonId?LessonId=${response}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
+      }
+
+      const { data } = await resp.json();
+      setVideoDetails(data);
+      console.log("Successss list video:", data);
+    } catch (error) {
+      console.error("Error sending time to endpoint:", error);
+    }
+  }
   const handleSendVideo = async (e: any) => {
     e.preventDefault();
     videoDetails.forEach((video) => {
       const newCourseData = {
-        lessonId: 117,
+        lessonId: response,
         name: video.name,
         userCreatorId: id,
         description: video.name,
@@ -220,6 +243,7 @@ export default function NewCourse({ courseList }: Props) {
         courseProjectId: variable.courseProjectId,
         videoFile: video.videoFile,
       };
+      console.log(response, "response");
       const formData = new FormData();
       for (const key in newCourseData) {
         if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -276,12 +300,40 @@ export default function NewCourse({ courseList }: Props) {
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      setCourseNew("");
-      console.log(response, "respuesta");
+      // setCourseNew("");
+      setIsContent(true);
       const { data } = await response.json();
       const { courseProjectId, id } = data;
       setVariable({ courseProjectId, id });
-      // setVariable({ courseProjectId, id });
+      toast.success("Curso creado exitosamente");
+    } catch (error: any) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+  const EditCourse = async () => {
+    const request = {
+      id: idCourse,
+      courseProjectId: courseProjectId,
+      name: courseNew,
+      description: courseNew,
+      userCreatorId: 1091,
+    };
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request), // Aquí se incluye el cuerpo del request
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      toast.success("Curso editado exitosamente");
+
+      await response.json();
     } catch (error: any) {
       console.error("Error fetching courses:", error);
     }
@@ -290,25 +342,82 @@ export default function NewCourse({ courseList }: Props) {
   const handleAddCourse = (e: any) => {
     createCourse();
   };
+  const handleEditCourse = (e: any) => {
+    EditCourse();
+  };
+  const handleDeleteClass = async () => {
+    console.log("asd");
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${response}`;
+    const rsp = response;
+    console.log(courses, "courses delete");
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      toast.success("Clase eliminado exitosamente");
+      setCourses((prevCourses) => prevCourses.filter((item) => item.id !== rsp));
+
+      return result;
+    } catch (error) {
+      console.error("Failed to delete the course:", error);
+      throw error;
+    }
+  };
+  const handleDeleteVideo = async (id: number) => {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/${id}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      toast.success("Video eliminado exitosamente");
+
+      return result;
+    } catch (error) {
+      console.error("Failed to delete the course:", error);
+      throw error;
+    }
+  };
   return (
     <div className="p-4 h-full">
-      <h3 className="border-b-2 text-2xl">Nuevo curso</h3>
+      <h3 className="border-b-2 text-2xl">{`${isEdit ? "Editar curso" : "Nuevo curso"}`}</h3>
       <div>
         <div className="flex items-center p-4 gap-4 mt-4 bg-gray-100 rounded-md shadow-lg">
           <input
             onChange={(e: any) => {
               setCourseNew(e.target.value);
             }}
+            value={courseNew}
             placeholder="Agregar curso"
             className="p-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button onClick={handleAddCourse} className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Agregar curso
-          </button>
+          {!isEdit && !isContent && (
+            <button onClick={isEdit ? handleEditCourse : handleAddCourse} className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              {isEdit ? "Guardar" : "Agregar curso"}
+            </button>
+          )}
         </div>
-
+        {!isEdit && isContent}
         <div className="flex items-center justify-between my-4">
-          <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" disabled={!selectedCourse} onClick={() => setShowModal(true)}>
+          <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={() => setShowModal(true)}>
             <div className="p-4 text-center flex">
               <PlusIcon className="w-8 h-8 text-primary" />
               <p className="text-lg font-semibold text-primary">Agregar Clase</p>
@@ -331,7 +440,11 @@ export default function NewCourse({ courseList }: Props) {
                       <div>{course.instructorName || course["nameLessonOrder"]}</div>
                       <div>{course.instructorProfession}</div>
                     </div>
-                    <div>
+                    <div className="">
+                      <button className="p-2 text-red-600 hover:text-red-900" onClick={handleDeleteClass}>
+                        <Trash2Icon className="h-4 w-4" />
+                        <span className="sr-only">Eliminar</span>
+                      </button>
                       <button className="mt-4 px-2 py-1 bg-blue-500 text-white rounded-sm hover:bg-blue-700" onClick={() => openModal(course)}>
                         +
                       </button>
@@ -342,11 +455,11 @@ export default function NewCourse({ courseList }: Props) {
             </div>
           )}
         </div>
-        {showModalVideo && selectedCourse && (
+        {showModalVideo && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex z-50">
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 pt-0 mx-auto my-8 mb-16 h-[80%] overflow-y-auto">
               <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
-                <h2 className="text-2xl font-semibold">Videos de {selectedCourse.name}</h2>
+                <h2 className="text-2xl font-semibold">Videos de {courseNew}</h2>
 
                 <div className="flex gap-4">
                   <label className="p-2 mt-4 bg-green-500 text-white rounded hover:bg-green-700">
@@ -378,6 +491,16 @@ export default function NewCourse({ courseList }: Props) {
                         {/* <td>
                 <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
               </td> */}
+                        <td>
+                          {videoDetail.id ? (
+                            <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteVideo(videoDetail.id as number)}>
+                              <Trash2Icon className="h-4 w-4" />
+                              <span className="sr-only">Eliminar</span>
+                            </button>
+                          ) : (
+                            ""
+                          )}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -453,6 +576,7 @@ export default function NewCourse({ courseList }: Props) {
           </div>
         )}
       </div>
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

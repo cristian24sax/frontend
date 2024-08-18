@@ -1,16 +1,30 @@
 "use client";
 import { useState } from "react";
 import NewCourse from "./newCourse";
+import { Toaster, toast } from "sonner";
+
 interface TableVideoProps {
   courseList: any[];
   courserListAdmin: any[];
 }
 export default function TableVideoComponent({ courseList, courserListAdmin }: TableVideoProps) {
   const [showVideoMain, setShowVideoMain] = useState(false);
-
+  const [showEditVideoMain, setShowEditVideoMain] = useState(false);
+  const [showEditName, setShowEditName] = useState("");
+  const [showEditId, setShowEditId] = useState(0);
+  const [showEditcourseProjectId, setShowEditcourseProjectId] = useState(0);
+  const [tableCourse, setTableCourse] = useState<any[]>(courserListAdmin);
   const handleNewCourseClick = (event: any) => {
     event.preventDefault();
     setShowVideoMain(!showVideoMain);
+  };
+  const handleEditCourseClick = (course: any) => {
+    const { name, id, courseProjectId } = course;
+
+    setShowEditVideoMain(!showEditVideoMain);
+    setShowEditName(name);
+    setShowEditId(id);
+    setShowEditcourseProjectId(courseProjectId);
   };
 
   if (showVideoMain) {
@@ -19,12 +33,21 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
         <button className="pt-5" onClick={handleNewCourseClick}>
           Atras
         </button>
-        <NewCourse courseList={courseList} />
+        <NewCourse courseList={courseList} isEdit={false} />
+      </div>
+    );
+  }
+  if (showEditVideoMain) {
+    return (
+      <div>
+        <button className="pt-5" onClick={handleEditCourseClick}>
+          Atras
+        </button>
+        <NewCourse courseList={courseList} isEdit={true} nameEdit={showEditName} id={showEditId} courseProjectId={showEditcourseProjectId} />
       </div>
     );
   }
   const handleDelete = async (course: any) => {
-    console.log(course, "delete");
     const { id, courseProjectId } = course;
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/${id}/${courseProjectId}`;
 
@@ -41,7 +64,9 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
       }
 
       const result = await response.json();
-      console.log("Course deleted:", result);
+      toast.success("Curso eliminado exitosamente");
+      setTableCourse((prevCourses) => prevCourses.filter((item) => item.id !== course.id));
+
       return result;
     } catch (error) {
       console.error("Failed to delete the course:", error);
@@ -66,7 +91,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
             </tr>
           </thead>
           <tbody>
-            {courserListAdmin.map((course) => (
+            {tableCourse.map((course) => (
               <tr key={course.id}>
                 <td className="border px-4 py-2 font-medium">{course.name}</td>
                 <td className="border px-4 py-2">{course.duration}</td>
@@ -74,7 +99,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
                 <td className="border px-4 py-2">{course.userCreator}</td>
                 <td className="border px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <button className="p-2 text-gray-600 hover:text-gray-900">
+                    <button className="p-2 text-gray-600 hover:text-gray-900" onClick={() => handleEditCourseClick(course)}>
                       <FilePenIcon className="h-4 w-4" />
                       <span className="sr-only">Editar</span>
                     </button>
@@ -89,6 +114,7 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
           </tbody>
         </table>
       </div>
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }
@@ -102,7 +128,7 @@ function FilePenIcon(props: any) {
   );
 }
 
-function Trash2Icon(props: any) {
+export function Trash2Icon(props: any) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 6h18" />
