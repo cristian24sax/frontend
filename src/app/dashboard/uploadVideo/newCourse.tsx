@@ -196,9 +196,11 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   }
 
   const openModal = (course: any) => {
-    getListVideo(course.id);
     if (isEdit) {
       setResponse(course.id);
+      getListVideo(course.id);
+    } else {
+      getListVideo(response);
     }
     setShowModalVideo(true);
   };
@@ -414,7 +416,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     }
   };
   useEffect(() => {
-    if (idCourse) {
+    if (isEdit) {
       getDetailCourse();
     }
   }, [refresh]);
