@@ -32,7 +32,7 @@ const AsideBar = () => {
     },
     {
       name: "Feedback experto",
-      link: "",
+      link: "/dashboard/question",
       icon: TbReportAnalytics,
       margin: true,
     },

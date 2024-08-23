@@ -54,3 +54,8 @@ export async function fetchCourseListAdmin() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list/admin`, headersFetch);
   return response.json();
 }
+export async function fetchQuestionListAdmin() {
+  const headersFetch = headers();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/question/list`, headersFetch);
+  return response.json();
+}
