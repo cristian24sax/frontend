@@ -21,17 +21,20 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
   };
   const handleEditCourseClick = (course: any) => {
     const { name, id, courseProjectId } = course;
-
     setShowEditVideoMain(!showEditVideoMain);
     setShowEditName(name);
     setShowEditId(id);
     setShowEditcourseProjectId(courseProjectId);
   };
-
+  const handleclick = (event: any) => {
+    event.preventDefault();
+    setShowVideoMain(!showVideoMain);
+    window.location.reload();
+  };
   if (showVideoMain) {
     return (
       <div>
-        <button className="pt-5" onClick={handleNewCourseClick}>
+        <button className="pt-5" onClick={handleclick}>
           Atras
         </button>
         <NewCourse courseDetailList={courseList} isEdit={false} />

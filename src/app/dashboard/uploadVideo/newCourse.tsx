@@ -365,8 +365,11 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleEditCourse = (e: any) => {
     EditCourse();
   };
-  const handleDeleteClass = async (id: number) => {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${id}`;
+  const handleDeleteClass = async (course: any) => {
+    if (isEdit) {
+      setResponse(course.id);
+    }
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${response}`;
     const rsp = response;
     try {
       const response = await fetch(url, {
@@ -382,7 +385,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
       const result = await response.json();
       toast.success("Clase eliminado exitosamente");
-      // setCourses((prevCourses) => prevCourses.filter((item) => item.id !== rsp));
+      setCourses((prevCourses) => prevCourses.filter((item) => console.log(item)));
       setRefresh((prev) => !prev);
       return result;
     } catch (error) {
@@ -439,12 +442,14 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         </div>
         {!isEdit && isContent}
         <div className="flex items-center justify-between my-4">
-          <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={() => setShowModal(true)}>
-            <div className="p-4 text-center flex">
-              <PlusIcon className="w-8 h-8 text-primary" />
-              <p className="text-lg font-semibold text-primary">Agregar Clase</p>
-            </div>
-          </button>
+          {courseNew !== "" && (
+            <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={() => setShowModal(true)}>
+              <div className="p-4 text-center flex">
+                <PlusIcon className="w-8 h-8 text-primary" />
+                <p className="text-lg font-semibold text-primary">Agregar Clase</p>
+              </div>
+            </button>
+          )}
         </div>
       </div>
       <div className="container mx-auto py-8">
@@ -463,7 +468,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                       <div>{course.instructorProfession}</div>
                     </div>
                     <div className="">
-                      <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteClass(course.id as number)}>
+                      <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteClass(course)}>
                         <Trash2Icon className="h-4 w-4" />
                         <span className="sr-only">Eliminar</span>
                       </button>

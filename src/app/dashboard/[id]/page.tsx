@@ -44,10 +44,7 @@ export default async function DetailCourse({ params }: any) {
               <h2 className="text-xl font-bold">Objetivo del curso</h2>
               <p className="text-gray-500 mt-2">{data.objetives}</p>
             </div>
-            <div className="mt-6">
-              <h2 className="text-xl font-bold">Lo que aprenderás</h2>
-              {data.indexLesson}
-            </div>
+
             <div className="mt-6">
               <h2 className="text-xl font-bold">Índice de temas</h2>
               {data.indexLesson}
