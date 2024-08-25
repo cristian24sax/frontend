@@ -1,6 +1,5 @@
 "use client";
-import { CourseList } from "@/interfaces/dataCourseList";
-import { ChangeEvent, use, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Trash2Icon } from "./tableVideo";
 
@@ -42,7 +41,9 @@ interface VideoDetail {
 export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCourse, courseDetailList }: Props) {
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
+
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado de carga
   const [newCourse, setNewCourse] = useState<NewCourse>({
     courseProjectId: 0,
     courseId: 0,
@@ -71,10 +72,12 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     courseProjectId: 0,
     id: 0,
   });
+
   const getDetailCourse = async () => {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson?CourseId=${idCourse}`;
 
     try {
+      setLoading(true); // Inicia la carga
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -87,13 +90,15 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
 
       const result = await response.json();
-
       setCourses(result.data);
     } catch (error) {
-      console.error("Failed to delete the course:", error);
+      console.error("Failed to fetch course details:", error);
       throw error;
+    } finally {
+      setLoading(false); // Termina la carga
     }
   };
+
   const handleInputChange = (e: any) => {
     setNewCourse({ ...newCourse, [e.target.name]: e.target.value });
   };
@@ -146,10 +151,13 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
     }
     try {
+      setLoading(true); // Inicia la carga
       await sendVideo(formData);
       setShowModal(false);
     } catch (error) {
       console.error("Error saving course:", error);
+    } finally {
+      setLoading(false); // Termina la carga
     }
 
     setCourses([...courses, newCourseData]);
@@ -187,11 +195,10 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
 
       const { data } = await response.json();
-
       setResponse(data.id);
       setRefresh((prev) => !prev);
     } catch (error) {
-      console.error("Error sending time to endpoint:", error);
+      console.error("Error sending data to endpoint:", error);
     }
   }
 
@@ -235,6 +242,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
   async function getListVideo(value: number) {
     try {
+      setLoading(true); // Inicia la carga
       const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/listByLessonId?LessonId=${value}`, {
         method: "GET",
         headers: {
@@ -249,34 +257,44 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       const { data } = await resp.json();
       setVideoDetails(data);
     } catch (error) {
-      console.error("Error sending time to endpoint:", error);
+      console.error("Error fetching video list:", error);
+    } finally {
+      setLoading(false); // Termina la carga
     }
   }
+
   const handleSendVideo = async (e: any) => {
     e.preventDefault();
-    videoDetails.forEach((video) => {
-      const newCourseData = {
-        lessonId: response,
-        name: video.name,
-        userCreatorId: id,
-        description: video.name,
-        playOrder: video.playOrder,
-        courseProjectId: variable.courseProjectId || courseProjectId,
-        videoFile: video.videoFile,
-      };
-      const formData = new FormData();
-      for (const key in newCourseData) {
-        if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
-          formData.append(key, (newCourseData as any)[key]);
+    setShowModalVideo(false);
+    try {
+      setLoading(true); // Inicia la carga
+      for (const video of videoDetails) {
+        const newCourseData = {
+          lessonId: response,
+          name: video.name,
+          userCreatorId: id,
+          description: video.name,
+          playOrder: video.playOrder,
+          courseProjectId: variable.courseProjectId || courseProjectId,
+          videoFile: video.videoFile,
+        };
+
+        const formData = new FormData();
+        for (const key in newCourseData) {
+          if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
+            formData.append(key, (newCourseData as any)[key]);
+          }
         }
+
+        await sendVideoList(formData);
       }
-      try {
-        sendVideoList(formData);
-        setShowModalVideo(false);
-      } catch (error) {
-        console.error("Error saving course:", error);
-      }
-    });
+
+      setShowModalVideo(false);
+    } catch (error) {
+      console.error("Error saving video:", error);
+    } finally {
+      setLoading(false); // Termina la carga
+    }
   };
 
   async function sendVideoList(formData: FormData) {
@@ -294,9 +312,8 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
 
       await response.json();
-      // setRefresh((prev) => !prev);
     } catch (error) {
-      console.error("Error sending time to endpoint:", error);
+      console.error("Error sending video to endpoint:", error);
     }
   }
 
@@ -307,29 +324,33 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       userCreatorId: 1091,
     };
     try {
+      setLoading(true); // Inicia la carga
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request), // Aquí se incluye el cuerpo del request
+        body: JSON.stringify(request),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data");
+        throw new Error("Failed to create course");
       }
-      // setCourseNew("");
+
       setIsContent(true);
       const { data } = await response.json();
       const { courseProjectId, id } = data;
       setVariable({ courseProjectId, id });
       setRefresh((prev) => !prev);
       toast.success("Curso creado exitosamente");
-    } catch (error: any) {
-      console.error("Error fetching courses:", error);
+    } catch (error) {
+      console.error("Error creating course:", error);
+    } finally {
+      setLoading(false); // Termina la carga
     }
   };
+
   const EditCourse = async () => {
     const request = {
       id: idCourse,
@@ -339,39 +360,45 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       userCreatorId: 1091,
     };
     try {
+      setLoading(true); // Inicia la carga
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request), // Aquí se incluye el cuerpo del request
+        body: JSON.stringify(request),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data");
+        throw new Error("Failed to edit course");
       }
       toast.success("Curso editado exitosamente");
 
       await response.json();
-    } catch (error: any) {
-      console.error("Error fetching courses:", error);
+    } catch (error) {
+      console.error("Error editing course:", error);
+    } finally {
+      setLoading(false); // Termina la carga
     }
   };
 
-  const handleAddCourse = (e: any) => {
+  const handleAddCourse = () => {
     createCourse();
   };
-  const handleEditCourse = (e: any) => {
+
+  const handleEditCourse = () => {
     EditCourse();
   };
+
   const handleDeleteClass = async (course: any) => {
     if (isEdit) {
       setResponse(course.id);
     }
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/${response}`;
-    const rsp = response;
+
     try {
+      setLoading(true); // Inicia la carga
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -384,19 +411,23 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
 
       const result = await response.json();
-      toast.success("Clase eliminado exitosamente");
-      setCourses((prevCourses) => prevCourses.filter((item) => console.log(item)));
+      toast.success("Clase eliminada exitosamente");
+      setCourses((prevCourses) => prevCourses.filter((item) => item.id !== course.id));
       setRefresh((prev) => !prev);
       return result;
     } catch (error) {
       console.error("Failed to delete the course:", error);
       throw error;
+    } finally {
+      setLoading(false); // Termina la carga
     }
   };
+
   const handleDeleteVideo = async (id: number) => {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/${id}`;
 
     try {
+      setLoading(true); // Inicia la carga
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -414,17 +445,27 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
       return result;
     } catch (error) {
-      console.error("Failed to delete the course:", error);
+      console.error("Failed to delete the video:", error);
       throw error;
+    } finally {
+      setLoading(false); // Termina la carga
     }
   };
+
   useEffect(() => {
     if (isEdit) {
       getDetailCourse();
     }
   }, [refresh]);
+
   return (
     <div className="p-4 h-full">
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
+          <span className="ml-2 text-white">Cargando...</span>
+        </div>
+      )}
       <h3 className="border-b-2 text-2xl">{`${isEdit ? "Editar curso" : "Nuevo curso"}`}</h3>
       <div>
         <div className="flex items-center p-4 gap-4 mt-4 bg-gray-100 rounded-md shadow-lg">
@@ -434,7 +475,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
             }}
             value={courseNew}
             placeholder="Agregar curso"
-            className="p-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button onClick={isEdit ? handleEditCourse : handleAddCourse} className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
             {isEdit ? "Guardar" : "Agregar curso"}
@@ -509,15 +550,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                         <td className="pr-2">
                           <input type="text" name="name" value={videoDetail.name} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Nombre del video" className="w-full p-2 border rounded" />
                         </td>
-                        {/* <td className="pr-2">
-                          <input type="text" name="description" value={videoDetail.description} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Descripción" className="w-full p-2 border rounded" />
-                        </td> */}
                         <td className="pr-2">
                           <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
                         </td>
-                        {/* <td>
-                <input type="file" accept="video/*" onChange={(e) => handleVideoChange(e, index)} className="w-full p-2 border rounded" />
-              </td> */}
                         <td>
                           {videoDetail.id ? (
                             <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteVideo(videoDetail.id as number)}>
