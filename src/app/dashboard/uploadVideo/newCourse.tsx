@@ -442,7 +442,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         </div>
         {!isEdit && isContent}
         <div className="flex items-center justify-between my-4">
-          {courseNew !== "" && (
+          {(variable.id !== 0 || isEdit) && (
             <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={() => setShowModal(true)}>
               <div className="p-4 text-center flex">
                 <PlusIcon className="w-8 h-8 text-primary" />
