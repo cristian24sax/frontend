@@ -321,7 +321,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     const request = {
       name: courseNew,
       description: "string",
-      userCreatorId: 1091,
+      userCreatorId: id,
     };
     try {
       setLoading(true); // Inicia la carga
@@ -357,7 +357,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       courseProjectId: courseProjectId,
       name: courseNew,
       description: courseNew,
-      userCreatorId: 1091,
+      userCreatorId: id,
     };
     try {
       setLoading(true); // Inicia la carga

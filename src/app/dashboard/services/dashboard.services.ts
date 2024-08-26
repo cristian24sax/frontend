@@ -41,7 +41,8 @@ export async function fetchCourseDetail(id: number) {
 }
 export async function fetchCourseVideo(id: number) {
   const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=1091&LessonId=${id}`, headersFetch);
+  const { id: idUser } = cookiesService();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=${idUser}&LessonId=${id}`, headersFetch);
   return response.json();
 }
 export async function fetchCourseList() {
