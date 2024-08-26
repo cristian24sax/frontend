@@ -12,13 +12,13 @@ interface Props {
 
 export const OptionsComponent = ({ item, index, length }: Props) => {
   const router = useRouter();
-  const { setValue, value } = useVideoStore();
-  const [hasBeenPlayed, setHasBeenPlayed] = useState<boolean>(item.hasBeenPlayed);
+  const { setValue, value, hasBeenPlayedMap, setHasBeenPlayed } = useVideoStore();
   const dataUser = localStorage.getItem("dataUser");
   const { token, id: idPerson } = JSON.parse(dataUser as string);
   const handleOptions = (id: number) => {
     setValue(id);
   };
+  const hasBeenPlayed = hasBeenPlayedMap[item.id] ?? item.hasBeenPlayed;
   const handlecheck = async (id: number) => {
     const changeState = hasBeenPlayed ? false : true;
     try {
@@ -39,7 +39,7 @@ export const OptionsComponent = ({ item, index, length }: Props) => {
         throw new Error("Failed to fetch data");
       }
       if (resp.status === 200) {
-        setHasBeenPlayed(changeState);
+        setHasBeenPlayed(id, changeState);
         item.hasBeenPlayed = changeState;
       }
     } catch (error) {
