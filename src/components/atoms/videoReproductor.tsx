@@ -10,7 +10,7 @@ interface EmbeddedVideoProps {
 
 const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { value, setValue, setCurrentTime: time } = useVideoStore();
+  const { value, setValue, setCurrentTime: time, setHasBeenPlayed } = useVideoStore();
   const dataUser = localStorage.getItem("dataUser");
   const { token, id } = JSON.parse(dataUser as string);
   const [checkSent, setCheckSent] = useState(false); // Estado para rastrear si handlecheck ya se llamó
@@ -49,7 +49,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
         }),
       });
       setCheckSent(true);
-      // setHasBeenPlayed(value, true); // Actualizar el estado de hasBeenPlayed
+      setHasBeenPlayed(value as number, true); // Actualizar el estado de hasBeenPlayed
     } catch (error) {
       console.error("Error sending check state to endpoint:", error);
     }
@@ -98,6 +98,7 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       if (nextIndex < embedCode.length) {
                         setValue(embedCode[nextIndex].id);
                         setCheckSent(false);
+                        handlecheck();
                         video.time(0);
                       }
                     });
@@ -107,9 +108,8 @@ const EmbeddedVideo: React.FC<EmbeddedVideoProps> = ({ embedCode }) => {
                       if (value !== null) throttledSendTimeToEndpoint(seconds);
 
                       const duration = video.duration();
-                      if (duration - seconds <= 10 && !checkSent) {
-                        handlecheck();
-                      }
+                      // if (duration - seconds <= 10 && !checkSent) {
+                      // }
                     });
 
                     video.time(initialTime);
