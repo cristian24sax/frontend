@@ -47,7 +47,7 @@ export default async function DetailCourse({ params }: any) {
 
             <div className="mt-6">
               <h2 className="text-xl font-bold">Índice de temas</h2>
-              {data.indexLesson}
+              <div className="text-gray-500 mt-2" dangerouslySetInnerHTML={{ __html: data.indexLesson }} />
             </div>
             <div className="mt-12">
               <div>
@@ -66,7 +66,7 @@ export default async function DetailCourse({ params }: any) {
                 <div className="mt-4">
                   <div className="flex items-center">
                     <ClockIcon className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-gray-500">{data.duration} horas de contenido</span>
+                    <span className="text-gray-500">{data.duration} de contenido</span>
                   </div>
                   <div className="flex items-center mt-2">
                     <CalendarIcon className="h-5 w-5 text-gray-500 mr-2" />

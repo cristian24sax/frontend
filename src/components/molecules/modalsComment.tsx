@@ -42,8 +42,9 @@ export function CommentModal({ isOpen, onClose, onSave }: CommentModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg p-6 w-96">
-        <h2 className="text-xl font-bold mb-4">Escribe tu duda o comentario</h2>
+        <h2 className="text-xl mb-4">Escribe tu duda o comentario</h2>
         <textarea className="w-full h-32 p-2 border rounded-lg mb-4" value={comment} onChange={(e) => setComment(e.target.value)}></textarea>
+        <p className="mb-4">Escribe el minuto y segundo de tu duda</p>
         <div className="flex gap-2 mb-4">
           {/* <input type="number" placeholder="Horas" className="w-1/3 p-2 border rounded-lg" value={hours} onChange={(e) => setHours(e.target.value)} /> */}
           <input type="number" placeholder="Minutos" className="w-1/3 p-2 border rounded-lg mx-2" value={minutes} onChange={(e) => setMinutes(e.target.value)} />

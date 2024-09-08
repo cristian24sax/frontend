@@ -28,6 +28,7 @@ interface NewCourse {
   listLessonVideoDetailsResponses?: any[];
   nameLessonOrder?: string;
   imagePreview?: string | null;
+  classNumber?: string | null;
 }
 
 interface VideoDetail {
@@ -504,7 +505,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                   <img src={course.imagePreview || (course.previousImage as any)} alt={course.name} className="w-full h-48 object-cover" />
                   <div className="p-4 flex">
                     <div className="flex-grow">
-                      <h3 className="text-lg font-semibold">{course.name}</h3>
+                      <h3 className="text-lg font-semibold">{course.classNumber || `${course["lessonOrder"]}.`}{course.name}</h3>
                       <div>{course.instructorName || course["nameLessonOrder"]}</div>
                       <div>{course.instructorProfession}</div>
                     </div>
@@ -551,7 +552,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                           <input type="text" name="name" value={videoDetail.name} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Nombre del video" className="w-full p-2 border rounded" />
                         </td>
                         <td className="pr-2">
-                          <input type="number" name="playOrder" value={videoDetail.playOrder as any} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
+                          <input type="number" name="playOrder" 
+                                        value={videoDetail.playOrder || index + 1}
+                          onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
                         </td>
                         <td>
                           {videoDetail.id ? (

@@ -40,7 +40,7 @@ export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchi
           <ListCoursesComponent courses={dataMostViewed} error="" slidesPerView={3} />
           <h3 className="text-xl font-bold">Recién subidos</h3>
           <ListCoursesComponent courses={dataUpdoadCourses} error="" slidesPerView={3} />
-          <h3 className="text-xl font-bold">Videos vistos</h3>
+          <h3 className="text-xl font-bold">Clases vistas</h3>
           <ListCoursesComponent courses={dataUserWatchingCourses} error="" slidesPerView={3} />
         </div>
       )}
