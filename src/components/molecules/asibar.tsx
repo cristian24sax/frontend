@@ -14,6 +14,7 @@ const AsideBar = () => {
   const [open, setOpen] = useState(true);
   const [submenu, setSubMenu] = useState<Course[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // Añadido para manejar el rol del usuario
   const router = useRouter();
   const { setInputValueMenu } = useBearStore();
 
@@ -23,24 +24,28 @@ const AsideBar = () => {
       link: "/dashboard",
       icon: MdOutlineDashboard,
       submenus: [],
+      roles: ["admin", "user"],
     },
     {
       name: "Modulo de videos",
       link: "/dashboard/uploadVideo",
       icon: TbVideo,
       margin: true,
+      roles: ["admin"],
     },
     {
       name: "Feedback experto",
       link: "/dashboard/question",
       icon: TbReportAnalytics,
       margin: true,
+      roles: ["admin", "user"],
     },
     {
       name: "Programar dinamica",
       link: "",
       icon: AiOutlineHeart,
       margin: true,
+      roles: ["admin", "user"],
     },
   ];
 
@@ -70,6 +75,7 @@ const AsideBar = () => {
     const dataUser = localStorage.getItem("dataUser");
     if (dataUser) {
       const parsedData = JSON.parse(dataUser as string);
+      setUserRole(parsedData.is_Admin ? "admin" : "user");
       setToken(parsedData.token);
     } else {
       router.push("/auth/login", { scroll: false });
@@ -93,32 +99,34 @@ const AsideBar = () => {
           <HiMenuAlt3 size={26} className="cursor-pointer" onClick={() => setOpen(!open)} />
         </div>
         <div className="mt-4 flex flex-col gap-4 relative">
-          {menus.map((menu, i) => (
-            <div key={i} className={`group flex flex-col gap-1 ${menu.margin && "mt-5"}`}>
-              <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
-                <Link href={menu.link as any} className="flex items-center">
-                  {React.createElement(menu.icon)}
-                  <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
-                    {menu.name}
-                  </span>
-                </Link>
-                <h2 className={`${open && "hidden"} absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit z-10`}>{menu.name}</h2>
-              </div>
-              {menu.submenus && (
-                <div className="ml-12">
-                  {menu?.submenus?.map((sub) => (
-                    <Link href={"/dashboard"} key={sub.id}>
-                      <div key={sub.id} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
-                        <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
-                          {sub.name}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+          {menus
+            .filter((menu) => (menu.roles || []).includes(userRole || ""))
+            .map((menu, i) => (
+              <div key={i} className={`group flex flex-col gap-1 ${menu.margin && "mt-5"}`}>
+                <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
+                  <Link href={menu.link as any} className="flex items-center">
+                    {React.createElement(menu.icon)}
+                    <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
+                      {menu.name}
+                    </span>
+                  </Link>
+                  <h2 className={`${open && "hidden"} absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit z-10`}>{menu.name}</h2>
                 </div>
-              )}
-            </div>
-          ))}
+                {menu.submenus && (
+                  <div className="ml-12">
+                    {menu?.submenus?.map((sub) => (
+                      <Link href={"/dashboard"} key={sub.id}>
+                        <div key={sub.id} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
+                          <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
+                            {sub.name}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
         </div>
       </div>
     </section>

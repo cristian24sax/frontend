@@ -12,4 +12,5 @@ export interface Menu {
   icon: React.ComponentType;
   submenus?: Course[];
   margin?: boolean;
+  roles?: string[];
 }

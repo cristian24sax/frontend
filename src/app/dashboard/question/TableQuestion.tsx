@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
 import { Trash2Icon } from "../uploadVideo/tableVideo";
 import CommentModalQuestionClient from "@/components/atoms/buttonModalQuestion";
@@ -10,11 +10,15 @@ interface Props {
 
 export default function TableQuestionComponent({ data }: Props) {
   const [questions, setQuestions] = useState(data);
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const handleSaveComment = (videoQuestionId: number, newComment: string) => {
     setQuestions((prevQuestions) => prevQuestions.map((question) => (question.id === videoQuestionId ? { ...question, response: newComment } : question)));
   };
-
+  useEffect(() => {
+    const dataUser = localStorage.getItem("dataUser");
+    const parsedData = JSON.parse(dataUser as string);
+    setIsAdmin(parsedData.is_Admin);
+  }, []);
   return (
     <div className="w-full p-5">
       <header className="flex items-center justify-between border-b pb-4 mb-6">
@@ -32,7 +36,7 @@ export default function TableQuestionComponent({ data }: Props) {
               <th className="px-4 py-2">Usuario</th>
               <th className="px-4 py-2">Duda</th>
               <th className="px-4 py-2">Respuesta</th>
-              <th className="px-4 py-2">Acciones</th>
+              {isAdmin && <th className="px-4 py-2">Acciones</th>}
             </tr>
           </thead>
           <tbody>
@@ -46,19 +50,21 @@ export default function TableQuestionComponent({ data }: Props) {
                 <td className="border px-4 py-2">{question.userName}</td>
                 <td className="border px-4 py-2">{question.comment}</td>
                 <td className="border px-4 py-2">{question.response}</td>
-                <td className="border px-4 py-2">
-                  <div className="flex items-center gap-2">
-                    <CommentModalQuestionClient
-                      videoQuestionId={question.id}
-                      responseQuestion={question.response}
-                      onSave={handleSaveComment} // Pasamos la función de guardado
-                    />
-                    <button className="p-2 text-red-600 hover:text-red-900">
-                      <Trash2Icon className="h-4 w-4" />
-                      <span className="sr-only">Eliminar</span>
-                    </button>
-                  </div>
-                </td>
+                {isAdmin && (
+                  <td className="border px-4 py-2">
+                    <div className="flex items-center gap-2">
+                      <CommentModalQuestionClient
+                        videoQuestionId={question.id}
+                        responseQuestion={question.response}
+                        onSave={handleSaveComment} // Pasamos la función de guardado
+                      />
+                      <button className="p-2 text-red-600 hover:text-red-900">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span className="sr-only">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
