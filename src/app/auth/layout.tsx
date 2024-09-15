@@ -14,7 +14,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       {/* Header */}
       <header className="w-full bg-black text-white flex justify-between items-center p-4  h-[85px] opacity-[0.8] absolute top-0 left-0">
         <div className="flex items-center">
-          <Image src="/logo.png" alt="Logo" width={40} height={40} />
+          {/* <Image src="/logo.png" alt="Logo" width={40} height={40} /> */}
+          <span className="text-3xl font-bold tracking-wider text-white drop-shadow-lg uppercase">
+            MEJORA
+          </span>
         </div>
         <nav className="flex items-center space-x-4">
           <Link href="/login" className="text-white">
@@ -26,13 +29,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </nav>
       </header>
 
-      <main className="container absolute top-40">{children}</main>
-
-      {/* Bottom-left text */}
-      <p className="text-white text-sm absolute bottom-0 left-0 ml-3 xs:hidden md:block md:text-md xl:text-xl pb-1">Tú aprendizaje es nuestro mayor objetivo</p>
-
-      {/* Bottom-right text */}
-      <p className="text-white text-sm absolute bottom-0 right-0 mr-3 xs:hidden md:block md:text-md xl:text-xl pb-1">Transformar vidas mediante el aprendizaje integral</p>
+      <main className="container absolute">{children}</main>
     </div>
   );
 }

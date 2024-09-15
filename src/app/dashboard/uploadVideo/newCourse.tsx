@@ -145,6 +145,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       userCreatorId: id,
       id: newCourseId,
     };
+    
     const formData = new FormData();
     for (const key in newCourseData) {
       if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -230,6 +231,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleMultiVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      console.log(files);
       const newVideoDetails = files.map((file) => ({
         id: null,
         name: file.name,
@@ -237,6 +239,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         playOrder: null,
         videoFile: file,
       }));
+      console.log("LLEGO");
       setVideoDetails(newVideoDetails);
     }
   };
@@ -267,9 +270,19 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleSendVideo = async (e: any) => {
     e.preventDefault();
     setShowModalVideo(false);
+  
     try {
       setLoading(true); // Inicia la carga
-      for (const video of videoDetails) {
+  
+      // Crear una copia de los detalles del video con un playOrder predeterminado si es necesario
+      const updatedVideoDetails = videoDetails.map((video, index) => ({
+        ...video,
+        playOrder: video.playOrder !== undefined && video.playOrder !== null
+          ? video.playOrder
+          : index + 1, // Asignar playOrder basado en el índice si no existe
+      }));
+  
+      for (const video of updatedVideoDetails) {
         const newCourseData = {
           lessonId: response,
           name: video.name,
@@ -279,17 +292,20 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
           courseProjectId: variable.courseProjectId || courseProjectId,
           videoFile: video.videoFile,
         };
-
+  
+        console.log(updatedVideoDetails);
+        console.log(newCourseData);
+  
         const formData = new FormData();
         for (const key in newCourseData) {
           if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
             formData.append(key, (newCourseData as any)[key]);
           }
         }
-
+  
         await sendVideoList(formData);
       }
-
+  
       setShowModalVideo(false);
     } catch (error) {
       console.error("Error saving video:", error);
@@ -297,6 +313,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       setLoading(false); // Termina la carga
     }
   };
+  
 
   async function sendVideoList(formData: FormData) {
     try {
