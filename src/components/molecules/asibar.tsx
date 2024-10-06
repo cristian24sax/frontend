@@ -102,9 +102,11 @@ const AsideBar = () => {
   return (
     <section className="flex">
       <div className={`bg-[#0e0e0e] min-h-screen ${open ? "w-72" : "w-16"} duration-500 text-gray-100 px-4`}>
-        <div className="py-3 flex justify-end">
-          <HiMenuAlt3 size={26} className="cursor-pointer" onClick={() => setOpen(!open)} />
+        <div className="py-3 flex justify-center items-center relative">
+          <span className={`text-2xl font-bold transition-all duration-500 ${!open ? 'opacity-0 translate-x-[-100%]' : 'opacity-100 translate-x-0'}`}>MEJORA</span>
+          <HiMenuAlt3 size={26} className="cursor-pointer absolute right-0" onClick={() => setOpen(!open)} />
         </div>
+
         <div className="mt-4 flex flex-col gap-4 relative">
           {menus
             .filter((menu) => (menu.roles || []).includes(userRole || ""))
@@ -113,18 +115,28 @@ const AsideBar = () => {
                 <div className="flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-gray-800 rounded-md">
                   <Link href={menu.link as any} className="flex items-center">
                     {React.createElement(menu.icon)}
-                    <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
+                    <span
+                      style={{ transitionDelay: `${i + 3}00ms` }}
+                      className={`whitespace-pre duration-500 ${!open ? "opacity-0 translate-x-28 overflow-hidden" : "opacity-100 translate-x-0"}`}
+                    >
                       {menu.name}
                     </span>
                   </Link>
-                  <h2 className={`${open && "hidden"} absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit z-10`}>{menu.name}</h2>
+                  <h2
+                    className={`${open && "hidden"} absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit z-10`}
+                  >
+                    {menu.name}
+                  </h2>
                 </div>
                 {menu.submenus && (
                   <div className="ml-12">
                     {menu?.submenus?.map((sub) => (
                       <Link href={"/dashboard"} key={sub.id}>
                         <div key={sub.id} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
-                          <span style={{ transitionDelay: `${i + 3}00ms` }} className={`whitespace-pre duration-500 ${!open && "opacity-0 translate-x-28 overflow-hidden"}`}>
+                          <span
+                            style={{ transitionDelay: `${i + 3}00ms` }}
+                            className={`whitespace-pre duration-500 ${!open ? "opacity-0 translate-x-28 overflow-hidden" : "opacity-100 translate-x-0"}`}
+                          >
                             {sub.name}
                           </span>
                         </div>
@@ -137,6 +149,7 @@ const AsideBar = () => {
         </div>
       </div>
     </section>
+
   );
 };
 
