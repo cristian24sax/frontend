@@ -15,3 +15,15 @@ export interface VideoData {
   isLastVideoSeen: boolean;
   secondsElapsed: number;
 }
+
+export interface Evaluation {
+  id: number | null;
+  name: string;
+  url: string;
+}
+
+export interface Survey {
+  id: number | null;
+  name: string;
+  url: string;
+}

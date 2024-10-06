@@ -1,7 +1,8 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { Toaster, toast } from "sonner";
 import { Trash2Icon } from "./tableVideo";
+import { Evaluation, Survey } from "@/interfaces/video.interface";
 
 interface Props {
   nameEdit?: string;
@@ -66,6 +67,8 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const [showModalVideo, setShowModalVideo] = useState(false);
   const [response, setResponse] = useState(0);
   const [videoDetails, setVideoDetails] = useState<VideoDetail[]>([{ id: null, name: "", description: "", playOrder: null, videoFile: null }]);
+  const [lessonEvaluation, setLessonEvaluation] = useState<Evaluation | null>({ id: null, name: "", url: "" });
+  const [lessonSurvey, setLessonSurvey] = useState<Survey | null>({ id: null, name: "", url: "" });
   const [refresh, setRefresh] = useState(false);
   const [isContent, setIsContent] = useState(false);
   const [courseNew, setCourseNew] = useState(nameEdit || "");
@@ -73,6 +76,210 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     courseProjectId: 0,
     id: 0,
   });
+
+  // Estado para almacenar el archivo seleccionado
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileSurvey, setSelectedFileSurvey] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRefSurvey = useRef<HTMLInputElement | null>(null);
+
+  // Función para manejar la subida del archivo
+  const handleExamUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file); // Guardar el archivo en el estado
+    }
+  };
+
+  // Función para manejar la subida de la encuesta
+  const handleSurveyUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFileSurvey(file); // Guardar el archivo en el estado
+    }
+  };
+
+  // Función para eliminar el archivo
+  const handleRemoveFile = async (id: number | null) => {
+
+    try {
+      if (id == null) {
+        setSelectedFile(null); // Guardar el archivo en el estado
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Reiniciar el valor del input de archivo
+        }
+      } else {
+        setLoading(true);
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/evaluations/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        // Realiza la lógica para actualizar el estado o manejar la UI
+        setLessonEvaluation({ id: null, name: "", url: "" });
+        setSelectedFile(null); // Limpiar el archivo seleccionado también
+      }
+    } catch (error) {
+      console.error("Error eliminando el archivo:", error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveFileSurvey = async (id: number | null) => {
+    
+    try {
+      if (id == null) {
+        setSelectedFile(null); // Guardar el archivo en el estado
+
+        if (fileInputRefSurvey.current) {
+          fileInputRefSurvey.current.value = ""; // Reiniciar el valor del input de archivo
+        }
+      } else {
+        setLoading(true);
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/surveys/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        // Realiza la lógica para actualizar el estado o manejar la UI
+        setLessonSurvey({ id: null, name: "", url: "" });
+        setSelectedFileSurvey(null); // Limpiar el archivo seleccionado también
+
+        toast.success("Encuesta eliminada correctamente");
+      }
+    } catch (error) {
+      console.error("Error eliminando el archivo:", error);
+      toast.error("Ocurrio un error al publicar la encuesta");
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  // Función para descargar el archivo
+  const handleDownloadFile = async () => {
+    if (lessonEvaluation && lessonEvaluation.url) {
+      const response = await fetch(lessonEvaluation.url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob(); // Convertir la respuesta en un Blob
+      const url = URL.createObjectURL(blob); // Crear una URL para el Blob
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = lessonEvaluation.name; // Establecer el nombre para la descarga
+      a.target = '_blank'; // Abrir en una nueva pestaña
+      document.body.appendChild(a);
+      a.click(); // Simula un clic en el enlace
+      document.body.removeChild(a); // Limpia el DOM
+      URL.revokeObjectURL(url); // Liberar el recurso
+    } else {
+      if (selectedFile) {
+        // Crear un enlace para descargar el archivo
+        const url = URL.createObjectURL(selectedFile);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = selectedFile.name;
+        a.click();
+        console.log(a);
+        URL.revokeObjectURL(url); // Liberar el recurso
+      }
+    }
+  };
+
+  const handleDownloadFileSurvey = async () => {
+  };
+
+  // Función para manejar la publicación
+  const handlePublish = async () => {
+    if (selectedFile) {
+
+      try {
+        const newEvaluationData = {
+          lessonId: response,
+          file: selectedFile,
+          UserPersonId: id
+        };
+
+        setLoading(true); // Inicia la carga
+
+        const formData = new FormData();
+        for (const key in newEvaluationData) {
+          if (Object.prototype.hasOwnProperty.call(newEvaluationData, key)) {
+            formData.append(key, (newEvaluationData as any)[key]);
+          }
+        }
+
+        const fetchResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/upload-evaluation`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!fetchResponse.ok) {
+          throw new Error(`Error: ${fetchResponse.status} ${fetchResponse.statusText}`);
+        }
+
+        const { data } = await fetchResponse.json();
+        setLessonEvaluation(data);
+        toast.success("Examen publicado correctamente");
+      } catch (error) {
+        console.error("Error sending data to endpoint:", error);
+        toast.error("Ocurrio un error al publicar");
+      }finally{
+        setLoading(false);
+      }
+    }
+  };
+
+  const handlePublishSurvey = async () => {
+    if (selectedFileSurvey) {
+      try {
+        const newSurveyData = {
+          lessonId: response,
+          file: selectedFileSurvey,
+          UserPersonId: id
+        };
+
+        setLoading(true); // Inicia la carga
+
+        const formData = new FormData();
+        for (const key in newSurveyData) {
+          if (Object.prototype.hasOwnProperty.call(newSurveyData, key)) {
+            formData.append(key, (newSurveyData as any)[key]);
+          }
+        }
+
+        const fetchResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/upload-satisfaction-survey`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!fetchResponse.ok) {
+          throw new Error(`Error: ${fetchResponse.status} ${fetchResponse.statusText}`);
+        }
+
+        const { data } = await fetchResponse.json();
+
+        setLessonSurvey(data);
+        toast.success("Encuesta publicada correctamente");
+      } catch (error) {
+        console.error("Error sending data to endpoint:", error);
+        toast.error("Ocurrio un error al subir el archivo");
+      }finally{
+        setLoading(false);
+      }
+    }
+  };
 
   const getDetailCourse = async () => {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson?CourseId=${idCourse}`;
@@ -145,7 +352,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       userCreatorId: id,
       id: newCourseId,
     };
-    
+
     const formData = new FormData();
     for (const key in newCourseData) {
       if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
@@ -231,15 +438,22 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleMultiVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      console.log(files);
-      const newVideoDetails = files.map((file) => ({
-        id: null,
-        name: file.name,
-        description: "",
-        playOrder: null,
-        videoFile: file,
-      }));
-      console.log("LLEGO");
+
+      const newVideoDetails = files.map((file) => {
+
+        const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+
+        const playOrder = fileNameWithoutExtension.split('.')[0];
+
+        return {
+          id: null,
+          name: fileNameWithoutExtension,
+          description: "",
+          playOrder: Number(playOrder),
+          videoFile: file,
+        };
+      });
+
       setVideoDetails(newVideoDetails);
     }
   };
@@ -263,6 +477,56 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     } catch (error) {
       console.error("Error fetching video list:", error);
     } finally {
+      getEvaluation(value);
+      getSurvey(value);
+      setLoading(false); // Termina la carga
+    }
+  }
+
+  async function getEvaluation(value: number) {
+    try {
+      setLoading(true); // Inicia la carga
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/evaluations/get/${value}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
+      }
+
+      const { data } = await resp.json();
+
+      setLessonEvaluation(data);
+    } catch (error) {
+      console.error("Error fetching getEvaluation:", error);
+    } finally {
+      setLoading(false); // Termina la carga
+    }
+  }
+
+  async function getSurvey(value: number) {
+    try {
+      setLoading(true); // Inicia la carga
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/satisfaction/get/${value}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
+      }
+
+      const { data } = await resp.json();
+
+      setLessonSurvey(data);
+    } catch (error) {
+      console.error("Error fetching getEvaluation:", error);
+    } finally {
       setLoading(false); // Termina la carga
     }
   }
@@ -270,10 +534,10 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const handleSendVideo = async (e: any) => {
     e.preventDefault();
     setShowModalVideo(false);
-  
+
     try {
       setLoading(true); // Inicia la carga
-  
+
       // Crear una copia de los detalles del video con un playOrder predeterminado si es necesario
       const updatedVideoDetails = videoDetails.map((video, index) => ({
         ...video,
@@ -281,7 +545,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
           ? video.playOrder
           : index + 1, // Asignar playOrder basado en el índice si no existe
       }));
-  
+
       for (const video of updatedVideoDetails) {
         const newCourseData = {
           lessonId: response,
@@ -292,20 +556,17 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
           courseProjectId: variable.courseProjectId || courseProjectId,
           videoFile: video.videoFile,
         };
-  
-        console.log(updatedVideoDetails);
-        console.log(newCourseData);
-  
+
         const formData = new FormData();
         for (const key in newCourseData) {
           if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
             formData.append(key, (newCourseData as any)[key]);
           }
         }
-  
+
         await sendVideoList(formData);
       }
-  
+
       setShowModalVideo(false);
     } catch (error) {
       console.error("Error saving video:", error);
@@ -313,7 +574,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       setLoading(false); // Termina la carga
     }
   };
-  
+
 
   async function sendVideoList(formData: FormData) {
     try {
@@ -543,22 +804,43 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         </div>
         {showModalVideo && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex z-50">
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
+                  <span className="ml-2 text-white">Cargando...</span>
+                </div>
+              )}
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 pt-0 mx-auto my-8 mb-16 h-[80%] overflow-y-auto">
               <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
                 <h2 className="text-2xl font-semibold">Videos de {courseNew}</h2>
 
                 <div className="flex gap-4">
                   <label className="p-2 mt-4 bg-green-500 text-white rounded hover:bg-green-700">
-                    <span>Agregar información de Video</span>
-                    <input type="file" accept="video/*" multiple onChange={handleMultiVideoChange} className="w-full p-2 border rounded hidden" />
+                    <span>Agregar Video</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      multiple
+                      onChange={handleMultiVideoChange}
+                      className="w-full p-2 border rounded hidden"
+                    />
                   </label>
-                  <button className="p-2 mt-4 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={handleSendVideo}>
+
+                  <button
+                    className="p-2 mt-4 bg-blue-500 text-white rounded hover:bg-blue-700"
+                    onClick={handleSendVideo}
+                  >
                     Guardar
                   </button>
-                  <button className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700" onClick={closeModal}>
+
+                  <button
+                    className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-700"
+                    onClick={closeModal}
+                  >
                     Cerrar
                   </button>
                 </div>
+
               </div>
               {videoDetails.map((videoDetail, index) => (
                 <div key={index} className="mb-4 p-4 bg-gray-100 rounded-lg">
@@ -569,9 +851,9 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                           <input type="text" name="name" value={videoDetail.name} onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Nombre del video" className="w-full p-2 border rounded" />
                         </td>
                         <td className="pr-2">
-                          <input type="number" name="playOrder" 
-                                        value={videoDetail.playOrder || index + 1}
-                          onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
+                          <input type="number" name="playOrder"
+                            value={videoDetail.playOrder || index + 1}
+                            onChange={(e) => handleVideoDetailsChange(e, index)} placeholder="Orden de reproducción" className="w-full p-2 border rounded" />
                         </td>
                         <td>
                           {videoDetail.id ? (
@@ -589,7 +871,125 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                   {videoDetail.videoFile && <video src={URL.createObjectURL(videoDetail.videoFile)} controls className="w-full h-48" />}
                 </div>
               ))}
+
+              <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
+                <label
+                  className={`p-2 text-white rounded cursor-pointer ${lessonEvaluation && lessonEvaluation.name ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'
+                    }`}
+                >
+                  <span>Seleccionar examen</span>
+                  <input
+                    type="file"
+                    onChange={handleExamUpload}
+                    className="hidden"
+                    ref={fileInputRef} // Referencia al input de archivo
+                    disabled={lessonEvaluation && lessonEvaluation.name ? true : false} 
+                  />
+                </label>
+
+                {selectedFile && (!lessonEvaluation || !lessonEvaluation.name) && (
+                  <div className="flex items-center gap-4 ml-4">
+                    <a
+                      onClick={handleDownloadFile}
+                      className="text-blue-500 underline cursor-pointer hover:text-blue-700"
+                    >
+                      {selectedFile.name}
+                    </a>
+                    <button
+                      className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+                      onClick={handlePublish}
+                    >
+                      Publicar
+                    </button>
+
+                    <button
+                      className="p-2 bg-red-500 text-white rounded hover:bg-red-700"
+                      onClick={() => handleRemoveFile(null)} // Verificar si el id no es null
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+
+                {lessonEvaluation && lessonEvaluation.name && (
+                  <div className="flex items-center gap-4 ml-4">
+                    <a
+                      onClick={handleDownloadFile}
+                      className="text-blue-500 underline cursor-pointer hover:text-blue-700"
+                    >
+                      {lessonEvaluation.name}
+                    </a>
+
+                    <button
+                      className="p-2 bg-red-500 text-white rounded hover:bg-red-700"
+                      onClick={() => lessonEvaluation.id && handleRemoveFile(lessonEvaluation.id)} // Verificar si el id no es null
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+
+              </div>
+
+              <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
+              <label
+                  className={`p-2 text-white rounded cursor-pointer ${lessonSurvey && lessonSurvey.name ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'
+                    }`}
+                >
+                  <span>Seleccionar encuesta</span>
+                  <input
+                    type="file"
+                    onChange={handleSurveyUpload}
+                    className="hidden"
+                    ref={fileInputRefSurvey}
+                    disabled={lessonSurvey && lessonSurvey.name ? true : false} 
+                  />
+                </label>
+
+                {selectedFileSurvey && (!lessonSurvey || !lessonSurvey.name) && (
+                  <div className="flex items-center gap-4 ml-4">
+                    <a
+                      onClick={handleDownloadFile}
+                      className="text-blue-500 underline cursor-pointer hover:text-blue-700"
+                    >
+                      {selectedFileSurvey.name}
+                    </a>
+                    <button
+                      className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+                      onClick={handlePublishSurvey}
+                    >
+                      Publicar
+                    </button>
+
+                    <button
+                      className="p-2 bg-red-500 text-white rounded hover:bg-red-700"
+                      onClick={() => handleRemoveFileSurvey(null)} // Verificar si el id no es null
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+
+                {lessonSurvey && lessonSurvey.name && (
+                  <div className="flex items-center gap-4 ml-4">
+                    <a
+                      onClick={handleDownloadFileSurvey}
+                      className="text-blue-500 underline cursor-pointer hover:text-blue-700"
+                    >
+                      {lessonSurvey.name}
+                    </a>
+
+                    <button
+                      className="p-2 bg-red-500 text-white rounded hover:bg-red-700"
+                      onClick={() => lessonSurvey.id && handleRemoveFileSurvey(lessonSurvey.id)} // Verificar si el id no es null
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
+
           </div>
         )}
         {showModal && (

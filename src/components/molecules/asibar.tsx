@@ -41,8 +41,15 @@ const AsideBar = () => {
       roles: ["admin", "user"],
     },
     {
+      name: "Encuestas",
+      link: "/dashboard/surveys",
+      icon: TbReportAnalytics,
+      margin: true,
+      roles: ["admin"],
+    },
+    {
       name: "Programar dinamica",
-      link: "",
+      link: "/dashboard/dinamic",
       icon: AiOutlineHeart,
       margin: true,
       roles: ["admin", "user"],
