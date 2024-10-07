@@ -29,5 +29,3 @@ export default function SesionComponent() {
     </main>
   );
 }
-
-export const dynamic = "force-dynamic";

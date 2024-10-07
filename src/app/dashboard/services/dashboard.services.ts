@@ -65,5 +65,3 @@ export async function fetchSurveysResolve() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/surveys/list/surveys-resolve`, headersFetch);
   return response.json();
 }
-
-export const dynamic = "force-dynamic";
