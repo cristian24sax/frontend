@@ -16,7 +16,6 @@ const LoginPage = () => {
   const [showLogin, setShowLogin] = useState(false); // Controla la visualización del login
   const router = useRouter();
 
-  // Simula la carga inicial antes de mostrar el login
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLogin(true);
