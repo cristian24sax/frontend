@@ -77,7 +77,7 @@ const RegisterPage = () => {
       return;
     }
 
-    toast.success("Registro exitoso. Verifica tu correo electrónico.");
+    toast.success("Registro exitoso. Verifica tu bandeja de entrada o SPAM.");
 
     setFisrtName("");
     setLastName("");
@@ -103,15 +103,15 @@ const RegisterPage = () => {
           <div className="">
             <div className="space-y-3">
               <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-3">
-                <InputComponent type="text" placeholder="nombre" name="name" value={firstName} onChange={(e) => setFisrtName(e.target.value)} />
-                <InputComponent type="text" placeholder="apellido" name="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                <InputComponent type="text" placeholder="Nombres" name="name" value={firstName} onChange={(e) => setFisrtName(e.target.value)} />
+                <InputComponent type="text" placeholder="Apellidos" name="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
               </div>
               <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-3 ">
-                <InputComponent type="text" placeholder="username" name="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                <InputComponent type="email" placeholder="correo" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <InputComponent type="text" placeholder="Usuario" name="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <InputComponent type="email" placeholder="Correo" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-3">
-                <InputComponent type="password" placeholder="contraseña" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <InputComponent type="password" placeholder="Contraseña" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 <CountrySelect dataCountry={dataCountry} selectedCode={selectedCode} setSelectedCode={setSelectedCode} idCountry={idCountry} setIdCountry={SetIdCountry} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} />
               </div>
             </div>

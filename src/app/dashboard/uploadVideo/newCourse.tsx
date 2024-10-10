@@ -123,13 +123,13 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       }
     } catch (error) {
       console.error("Error eliminando el archivo:", error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
   const handleRemoveFileSurvey = async (id: number | null) => {
-    
+
     try {
       if (id == null) {
         setSelectedFile(null); // Guardar el archivo en el estado
@@ -154,7 +154,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
     } catch (error) {
       console.error("Error eliminando el archivo:", error);
       toast.error("Ocurrio un error al publicar la encuesta");
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -232,7 +232,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       } catch (error) {
         console.error("Error sending data to endpoint:", error);
         toast.error("Ocurrio un error al publicar");
-      }finally{
+      } finally {
         setLoading(false);
       }
     }
@@ -275,7 +275,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       } catch (error) {
         console.error("Error sending data to endpoint:", error);
         toast.error("Ocurrio un error al subir el archivo");
-      }finally{
+      } finally {
         setLoading(false);
       }
     }
@@ -805,11 +805,11 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         {showModalVideo && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex z-50">
             {loading && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                  <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
-                  <span className="ml-2 text-white">Cargando...</span>
-                </div>
-              )}
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
+                <span className="ml-2 text-white">Cargando...</span>
+              </div>
+            )}
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 pt-0 mx-auto my-8 mb-16 h-[80%] overflow-y-auto">
               <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
                 <h2 className="text-2xl font-semibold">Videos de {courseNew}</h2>
@@ -883,7 +883,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                     onChange={handleExamUpload}
                     className="hidden"
                     ref={fileInputRef} // Referencia al input de archivo
-                    disabled={lessonEvaluation && lessonEvaluation.name ? true : false} 
+                    disabled={lessonEvaluation && lessonEvaluation.name ? true : false}
                   />
                 </label>
 
@@ -932,7 +932,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
               </div>
 
               <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center mb-4 p-4">
-              <label
+                <label
                   className={`p-2 text-white rounded cursor-pointer ${lessonSurvey && lessonSurvey.name ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'
                     }`}
                 >
@@ -942,7 +942,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
                     onChange={handleSurveyUpload}
                     className="hidden"
                     ref={fileInputRefSurvey}
-                    disabled={lessonSurvey && lessonSurvey.name ? true : false} 
+                    disabled={lessonSurvey && lessonSurvey.name ? true : false}
                   />
                 </label>
 
@@ -994,6 +994,12 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         )}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex mb-16 z-50 ">
+            {loading && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
+                <span className="ml-2 text-white">Cargando...</span>
+              </div>
+            )}
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8 mb-16 h-full overflow-y-auto">
               <h2 className="text-2xl font-semibold mb-4">Nueva clase</h2>
               <form onSubmit={handleSaveCourse} className="grid grid-cols-1 md:grid-cols-2 gap-4">

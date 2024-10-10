@@ -68,7 +68,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ dataCountry, selectedCode
           </ul>
         )}
       </div>
-      <input type="text" value={phoneNumber} onChange={handlePhoneNumberChange} className="p-2 border h-[35px] !border-l-0 w-full text-sm hover:ring text-gray-700 placeholder:text-gray-400 flex-grow" />
+      <input type="text" placeholder="Numero de celular" value={phoneNumber} onChange={handlePhoneNumberChange} className="p-2 border h-[35px] !border-l-0 w-full text-sm hover:ring text-gray-700 placeholder:text-gray-400 flex-grow" />
     </div>
   );
 };
