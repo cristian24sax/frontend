@@ -77,7 +77,7 @@ const RegisterPage = () => {
       return;
     }
 
-    toast.success("Registro exitoso. Verifica tu bandeja de entrada o SPAM.");
+    toast.success("Verifica tu correo o SPAM para validar tu cuenta.");
 
     setFisrtName("");
     setLastName("");

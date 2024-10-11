@@ -617,3 +617,10 @@ body {
       fill: white;
   }
 }
+
+/* styles.css */
+@media (max-width: 640px) {
+  .mobile-height {
+    height: 200px !important;
+  }
+}

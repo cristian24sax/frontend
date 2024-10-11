@@ -19,8 +19,17 @@ export default async function DetailCourse({ params }: any) {
       <div className="w-full mx-auto py-12 px-4 md:px-6">
         <div className="flex flex-col items-center">
           <div className="rounded-lg overflow-hidden mb-8">
-            <Image src={data.previousImage} alt={`img`} width={800} height={700} unoptimized={true} className="rounded-md h-[500px]" />
+            <Image
+              src={data.previousImage}
+              alt="img"
+              width={800}
+              height={700}
+              unoptimized={true}
+              className="rounded-md h-[500px] mobile-height"
+            />
           </div>
+
+
           <div className="flex justify-end w-full mb-8 gap-4">
             <Link href={`/dashboard/videos/${id}`}>
               <button className="flex justify-content items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">
@@ -49,6 +58,12 @@ export default async function DetailCourse({ params }: any) {
               <h2 className="text-xl font-bold">Índice de temas</h2>
               <div className="text-gray-500 mt-2" dangerouslySetInnerHTML={{ __html: data.indexLesson }} />
             </div>
+
+            <div className="mt-6">
+              <h2 className="text-xl font-bold">Bibliografía</h2>
+              <div className="text-gray-500 mt-2" dangerouslySetInnerHTML={{ __html: data.bibliography }} />
+            </div>
+
             <div className="mt-12">
               <div>
                 <h2 className="text-xl font-bold">Sobre el instructor</h2>

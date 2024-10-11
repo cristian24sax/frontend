@@ -106,8 +106,8 @@ const AsideBar = () => {
           <span className={`text-2xl font-bold transition-all duration-500 ${!open ? 'opacity-0 translate-x-[-100%]' : 'opacity-100 translate-x-0'}`}>MEJORA</span>
           <HiMenuAlt3 size={26} className="cursor-pointer absolute right-0" onClick={() => setOpen(!open)} />
         </div>
-
-        <div className="mt-4 flex flex-col gap-4 relative">
+  
+        <div className={`mt-4 flex flex-col gap-4 relative ${!open ? "hidden" : ""}`}>
           {menus
             .filter((menu) => (menu.roles || []).includes(userRole || ""))
             .map((menu, i) => (
@@ -146,11 +146,14 @@ const AsideBar = () => {
                 )}
               </div>
             ))}
+
+            
         </div>
       </div>
     </section>
-
   );
+  
+  
 };
 
 export default AsideBar;

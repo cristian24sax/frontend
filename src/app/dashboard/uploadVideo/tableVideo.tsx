@@ -84,43 +84,46 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
         <button onClick={handleNewCourseClick}>Nuevo curso</button>
       </header>
       <div className="border rounded-lg overflow-hidden">
-        <table className="table-auto w-full">
-          <thead>
-            <tr>
-              <th className="px-4 py-2">Nombre</th>
-              <th className="px-4 py-2">Duración</th>
-              <th className="px-4 py-2">Creado</th>
-              <th className="px-4 py-2">Usuario</th>
-              <th className="px-4 py-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableCourse.map((course) => (
-              <tr key={course.id}>
-                <td className="border px-4 py-2 font-medium">{course.name}</td>
-                <td className="border px-4 py-2">{course.duration}</td>
-                <td className="border px-4 py-2">{course.createdAt}</td>
-                <td className="border px-4 py-2">{course.userCreator}</td>
-                <td className="border px-4 py-2">
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 text-gray-600 hover:text-gray-900" onClick={() => handleEditCourseClick(course)}>
-                      <FilePenIcon className="h-4 w-4" />
-                      <span className="sr-only">Editar</span>
-                    </button>
-                    <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDelete(course)}>
-                      <Trash2Icon className="h-4 w-4" />
-                      <span className="sr-only">Eliminar</span>
-                    </button>
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Nombre</th>
+                <th className="px-4 py-2">Duración</th>
+                <th className="px-4 py-2">Creado</th>
+                <th className="px-4 py-2 hidden md:table-cell">Usuario</th> {/* Ocultar en dispositivos pequeños */}
+                <th className="px-4 py-2">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tableCourse.map((course) => (
+                <tr key={course.id}>
+                  <td className="border px-4 py-2 font-medium">{course.name}</td>
+                  <td className="border px-4 py-2">{course.duration}</td>
+                  <td className="border px-4 py-2">{course.createdAt}</td>
+                  <td className="border px-4 py-2 hidden md:table-cell">{course.userCreator}</td> {/* Ocultar en dispositivos pequeños */}
+                  <td className="border px-4 py-2">
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 text-gray-600 hover:text-gray-900" onClick={() => handleEditCourseClick(course)}>
+                        <FilePenIcon className="h-4 w-4" />
+                        <span className="sr-only">Editar</span>
+                      </button>
+                      <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDelete(course)}>
+                        <Trash2Icon className="h-4 w-4" />
+                        <span className="sr-only">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <Toaster richColors position="bottom-right" />
     </div>
   );
+  
 }
 function FilePenIcon(props: any) {
   return (

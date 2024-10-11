@@ -12,7 +12,7 @@ interface props {
   dataUserWatchingCourses: DataCourses[];
 }
 export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchingCourses }: props) {
-  const { showCoursesFilter, coursesFilter, error, search, valueMenu } = useFilterCourses();
+  const { showCoursesFilter, coursesFilter, error, isLoading, search, valueMenu } = useFilterCourses(); // Incluir isLoading
   const { setInputValue, setInputValueMenu } = useBearStore();
   const handleClick = () => {
     setInputValue("");
@@ -20,10 +20,15 @@ export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchi
   };
   return (
     <>
-      <header className="shadow-sm sticky top-0 flex justify-between items-center  h-16 rounded-sm bg-stone-100 p-4 z-10">
-        <SearchComponent />
+      <header className="shadow-sm sticky top-0 flex justify-between items-center h-16 rounded-sm bg-stone-100 p-4 z-10">
+        <div className="flex-1 pr-2">
+          <SearchComponent />
+        </div>
         <SesionComponent />
       </header>
+
+
+
       {(showCoursesFilter && search !== "") || valueMenu !== null ? (
         <>
           <div className="flex gap-4 mt-5">
@@ -32,7 +37,15 @@ export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchi
               X
             </div>
           </div>
-          {coursesFilter.length > 0 ? <ListCoursesFilterComponent courses={coursesFilter} error={error} /> : <div className="text-black text-[20px]">No hay cursos para esto filtro.</div>}
+
+          {/* Mostrar el mensaje de "Buscando..." si isLoading es true */}
+          {isLoading ? (
+            <div className="text-black text-[20px]">Buscando...</div>
+          ) : coursesFilter.length > 0 ? (
+            <ListCoursesFilterComponent courses={coursesFilter} error={error} />
+          ) : (
+            <div className="text-black text-[20px]">No hay cursos para este filtro.</div>
+          )}
         </>
       ) : (
         <div className="flex flex-col mt-4">

@@ -6,6 +6,7 @@ import { useBearStore } from "@/store/ui";
 interface UseFilterCoursesResult {
   showCoursesFilter: boolean;
   coursesFilter: DataCourses[];
+  isLoading: boolean; // Nuevo estado para saber si está cargando
   error: string | null;
   search: string;
   valueMenu: number | null;
@@ -15,14 +16,22 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
   const [showCoursesFilter, setShowCoursesFilter] = useState<boolean>(false);
   const [coursesFilter, setCoursesFilter] = useState<DataCourses[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Nuevo estado de carga
+
 
   const { search, valueMenu } = useBearStore();
   const dataUser = localStorage.getItem("dataUser");
   const { token } = JSON.parse(dataUser as string);
 
+  // Estado para manejar el debounce
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  // Función para llamar al endpoint
   const fetchFilterCourses = async () => {
+    setIsLoading(true); // Indicar que la búsqueda ha empezado
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/list?Name=${search}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/list?Name=${debouncedSearch}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -37,8 +46,11 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
       setCoursesFilter(data);
     } catch (error: any) {
       setError(error.message);
+    } finally {
+      setIsLoading(false); // Indicar que la búsqueda ha terminado
     }
   };
+
   const fetchFilterCoursesMenu = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson?CourseId=${valueMenu}`, {
@@ -60,13 +72,34 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
     }
   };
 
+  // Efecto para actualizar `debouncedSearch` después de 2 segundos de inactividad
   useEffect(() => {
-    if (search !== "") fetchFilterCourses();
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 1000); // 2000 ms = 2 segundos
+
+    // Limpiar el timeout si el usuario sigue escribiendo
+    return () => {
+      clearTimeout(handler);
+    };
   }, [search]);
+
+  // Efecto para llamar a `fetchFilterCourses` cuando `debouncedSearch` cambie
+  useEffect(() => {
+    // Solo hacer la búsqueda si hay al menos 3 caracteres
+    if (debouncedSearch.length >= 3) {
+      fetchFilterCourses();
+    } else {
+      // Si tiene menos de 3 caracteres, limpiar los resultados
+      setShowCoursesFilter(false);
+      setCoursesFilter([]);
+    }
+  }, [debouncedSearch]);
+
   useEffect(() => {
     if (valueMenu !== null) fetchFilterCoursesMenu();
   }, [valueMenu]);
 
 
-  return { showCoursesFilter, coursesFilter, error, search, valueMenu };
+  return { showCoursesFilter, coursesFilter, error, isLoading, search, valueMenu };
 };
