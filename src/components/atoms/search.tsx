@@ -13,7 +13,7 @@ const SearchComponent = () => {
   };
 
   return (
-    <section className="flex justify-center items-center gap-3 flex-1"> {/* Agrega flex-1 para que ocupe el espacio disponible */}
+    <section className="flex justify-left items-left gap-3 flex-1"> {/* Agrega flex-1 para que ocupe el espacio disponible */}
       <div>{React.createElement(TbSearch, { size: "20" })}</div>
       <input
         type="text"
