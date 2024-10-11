@@ -1,19 +1,18 @@
-"use client"; // Asegúrate de marcar esto al principio del archivo
-
-import Link from "next/link";
-import { fetchCourseVideo } from "../../services";
-import EmbeddedVideo from "@/components/atoms/videoReproductor";
-import { OptionsComponent } from "@/components/atoms/optionsVideo";
-import { Evaluation, Survey, VideoData } from "@/interfaces/video.interface";
+"use client";
 import CommentModalClient from "@/components/atoms/buttonModal";
-import { useState, useEffect } from "react";
+import { OptionsComponent } from "@/components/atoms/optionsVideo";
+import EmbeddedVideo from "@/components/atoms/videoReproductor";
+import { Evaluation, Survey, VideoData } from "@/interfaces/video.interface";
+import { fetchCourseVideoget, fetchGetEvaluation, fetchGetSurvey, fetchUploadSastifaction } from "@/modules/dashboard/service/dashboard.service";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 export default function VideosCourses({ params }: any) {
   const dataUser = localStorage.getItem("dataUser");
-  const { token, id } = JSON.parse(dataUser as string);
+  const { id } = JSON.parse(dataUser as string);
   const { id: lessonId } = params;
-  const [videoData, setVideoData] = useState<VideoData[]>([]); // Cambiamos el nombre a videoData
+  const [videoData, setVideoData] = useState<VideoData[]>([]);
   const [lessonEvaluation, setLessonEvaluation] = useState<Evaluation | null>({ id: null, name: "", url: "" });
   const [lessonSurvey, setLessonSurvey] = useState<Survey | null>({ id: null, name: "", url: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -21,10 +20,9 @@ export default function VideosCourses({ params }: any) {
 
   // Efecto que se ejecuta al inicio para obtener los videos
   useEffect(() => {
-    console.log(params);
     const fetchData = async () => {
       try {
-        await fetchCourseVideo(lessonId); // Llama a la función aquí
+        await fetchCourseVideo(lessonId);
         await getEvaluation(lessonId);
         await getSurvey(lessonId);
       } catch (error) {
@@ -39,15 +37,15 @@ export default function VideosCourses({ params }: any) {
     if (lessonEvaluation && lessonEvaluation.url) {
       const response = await fetch(lessonEvaluation.url);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const blob = await response.blob(); // Convertir la respuesta en un Blob
       const url = URL.createObjectURL(blob); // Crear una URL para el Blob
 
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = lessonEvaluation.name; // Establecer el nombre para la descarga
-      a.target = '_blank'; // Abrir en una nueva pestaña
+      a.target = "_blank"; // Abrir en una nueva pestaña
       document.body.appendChild(a);
       a.click(); // Simula un clic en el enlace
       document.body.removeChild(a); // Limpia el DOM
@@ -59,15 +57,15 @@ export default function VideosCourses({ params }: any) {
     if (lessonSurvey && lessonSurvey.url) {
       const response = await fetch(lessonSurvey.url);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const blob = await response.blob(); // Convertir la respuesta en un Blob
       const url = URL.createObjectURL(blob); // Crear una URL para el Blob
 
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = lessonSurvey.name; // Establecer el nombre para la descarga
-      a.target = '_blank'; // Abrir en una nueva pestaña
+      a.target = "_blank"; // Abrir en una nueva pestaña
       document.body.appendChild(a);
       a.click(); // Simula un clic en el enlace
       document.body.removeChild(a); // Limpia el DOM
@@ -87,7 +85,7 @@ export default function VideosCourses({ params }: any) {
           lessonId: lessonId,
           file: file,
           userResolveId: id,
-          LessonSatisfactionSurveyId: lessonSurvey?.id
+          LessonSatisfactionSurveyId: lessonSurvey?.id,
         };
 
         const formData = new FormData();
@@ -97,20 +95,13 @@ export default function VideosCourses({ params }: any) {
           }
         }
 
-        const fetchResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/upload-satisfaction-survey-resolve`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+        const fetchResponse = await fetchUploadSastifaction(formData);
 
-        if (!fetchResponse.ok) {
-          throw new Error(`Error: ${fetchResponse.status} ${fetchResponse.statusText}`);
-        }
+        // if (!fetchResponse.ok) {
+        //   throw new Error(`Error: ${fetchResponse.status} ${fetchResponse.statusText}`);
+        // }
 
         toast.success("Encuesta enviada correctamente");
-
       } catch (error) {
         console.error("Error sending data to endpoint:", error);
         setLoading(false);
@@ -122,18 +113,11 @@ export default function VideosCourses({ params }: any) {
   };
 
   async function fetchCourseVideo(lessonId: number) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?LessonId=${lessonId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-    const { data } = await response.json();
+    const response = await fetchCourseVideoget(lessonId);
+    // if (!response.ok) {
+    //   throw new Error(`Error: ${response.status} ${response.statusText}`);
+    // }
+    const { data } = response;
 
     setVideoData(data);
   }
@@ -141,19 +125,12 @@ export default function VideosCourses({ params }: any) {
   async function getEvaluation(lessonId: number) {
     try {
       //setLoading(true); // Inicia la carga
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/evaluations/get/${lessonId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const resp = await fetchGetEvaluation(lessonId);
 
-      if (!resp.ok) {
-        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
-      }
-
-      const { data } = await resp.json();
-
+      // if (!resp.ok) {
+      //   throw new Error(`Error: ${resp.status} ${resp.statusText}`);
+      // }
+      const { data } = resp;
       setLessonEvaluation(data);
     } catch (error) {
       console.error("Error fetching getEvaluation:", error);
@@ -165,18 +142,9 @@ export default function VideosCourses({ params }: any) {
   async function getSurvey(lessonId: number) {
     try {
       //setLoading(true); // Inicia la carga
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/survey/get/${lessonId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const resp = await fetchGetSurvey(lessonId);
 
-      if (!resp.ok) {
-        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
-      }
-
-      const { data } = await resp.json();
+      const { data } = resp;
 
       setLessonSurvey(data);
     } catch (error) {
@@ -228,21 +196,26 @@ export default function VideosCourses({ params }: any) {
           <div>
             <h2 className="text-lg font-medium mb-4">Cursos</h2>
             <div>
-              {videoData.map((item: VideoData, index: number) => ( // Cambia aquí para usar videoData
-                <OptionsComponent item={item} key={item.id} index={index} length={videoData.length} />
-              ))}
+              {videoData.map(
+                (
+                  item: VideoData,
+                  index: number // Cambia aquí para usar videoData
+                ) => (
+                  <OptionsComponent item={item} key={item.id} index={index} length={videoData.length} />
+                )
+              )}
             </div>
           </div>
           <div className="flex flex-col p-4 text-sm gap-2">
-            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFile}>Descargar examen y solucionario</button>
-            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFileSurvey}>Descargar encuesta de satisfacción</button>
+            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFile}>
+              Descargar examen y solucionario
+            </button>
+            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFileSurvey}>
+              Descargar encuesta de satisfacción
+            </button>
             <label className="bg-blue-950 text-white rounded-sm p-2 text-left w-full cursor-pointer">
               <span>Enviar encuesta</span>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleSurveyUpload}
-              />
+              <input type="file" className="hidden" onChange={handleSurveyUpload} />
             </label>
             <Link href={`/dashboard/dinamic`}>
               <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full">Programar dinámica</button>
@@ -254,7 +227,6 @@ export default function VideosCourses({ params }: any) {
     </>
   );
 }
-
 
 function MaximizeIcon(props: any) {
   return (

@@ -1,7 +1,7 @@
-// hooks/useFilterCourses.ts
 import { useState, useEffect } from "react";
 import { DataCourses } from "@/interfaces/dataCourses";
 import { useBearStore } from "@/store/ui";
+import { filterCourses, filterCoursesMenu } from "@/modules/dashboard/service/dashboard.service";
 
 interface UseFilterCoursesResult {
   showCoursesFilter: boolean;
@@ -17,23 +17,11 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
   const [error, setError] = useState<string | null>(null);
 
   const { search, valueMenu } = useBearStore();
-  const dataUser = localStorage.getItem("dataUser");
-  const { token } = JSON.parse(dataUser as string);
-
   const fetchFilterCourses = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/list?Name=${search}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
+      const response = await filterCourses(search);
       setShowCoursesFilter(true);
-      const { data } = await response.json();
+      const { data } = response;
       setCoursesFilter(data);
     } catch (error: any) {
       setError(error.message);
@@ -41,19 +29,9 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
   };
   const fetchFilterCoursesMenu = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson?CourseId=${valueMenu}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
+      const response = await filterCoursesMenu(valueMenu);
       setShowCoursesFilter(true);
-      const { data } = await response.json();
+      const { data } = response;
       setCoursesFilter(data);
     } catch (error: any) {
       setError(error.message);
@@ -66,7 +44,6 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
   useEffect(() => {
     if (valueMenu !== null) fetchFilterCoursesMenu();
   }, [valueMenu]);
-
 
   return { showCoursesFilter, coursesFilter, error, search, valueMenu };
 };

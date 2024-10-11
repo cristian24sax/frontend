@@ -1,13 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NewCourse from "./newCourse";
 import { Toaster, toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface TableVideoProps {
   courseList: any[];
   courserListAdmin: any[];
 }
 export default function TableVideoComponent({ courseList, courserListAdmin }: TableVideoProps) {
+  const router = useRouter();
+  console.log(courserListAdmin, "se actualiza ?");
   const [showVideoMain, setShowVideoMain] = useState(false);
   const [showEditVideoMain, setShowEditVideoMain] = useState(false);
   const [showEditName, setShowEditName] = useState("");
@@ -27,10 +30,10 @@ export default function TableVideoComponent({ courseList, courserListAdmin }: Ta
     setShowEditcourseProjectId(courseProjectId);
   };
   const handleclick = (event: any) => {
-    event.preventDefault();
     setShowVideoMain(!showVideoMain);
-    window.location.reload();
+    router.refresh();
   };
+
   if (showVideoMain) {
     return (
       <div>

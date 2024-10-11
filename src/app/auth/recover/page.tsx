@@ -1,4 +1,5 @@
 "use client";
+import { authRecover } from "@/modules/auth/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Toaster, toast } from "sonner";
@@ -10,13 +11,7 @@ const validatePage = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/recoverypwd?Email=${email}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
+    const res = await authRecover(email)
     console.log({ res }, "respuesta de recuperar");
     if (res.status !== 200) {
       toast.error("Correo no existe");

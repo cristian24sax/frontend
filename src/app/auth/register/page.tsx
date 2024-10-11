@@ -3,7 +3,6 @@ import { InputComponent } from "@/components/atoms";
 import CountrySelect from "@/components/atoms/country";
 import { Country } from "@/interfaces/dataCountry";
 import axios from "axios";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

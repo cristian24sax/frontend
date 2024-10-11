@@ -1,4 +1,4 @@
-import { fetchCourseList, fetchCourseListAdmin } from "../services";
+import { fetchCourseList, fetchCourseListAdmin } from "@/modules/dashboard/service/dashboard.service";
 import TableVideoComponent from "./tableVideo";
 
 export default async function Component() {

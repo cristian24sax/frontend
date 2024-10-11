@@ -1,12 +1,11 @@
 import Image from "next/image";
-import { fetchCourseDetail } from "../services";
 import Link from "next/link";
 import { BackArrowIcon } from "../videos/[id]/page";
+import { fetchCourseDetail } from "@/modules/dashboard/service/dashboard.service";
 
 export default async function DetailCourse({ params }: any) {
   const { id } = params;
   const { data } = await fetchCourseDetail(id);
-  console.log(data);
   const avatarUrl = `https://ui-avatars.com/api/?name=${data.instructorName}&background=random&color=fff`;
   return (
     <>

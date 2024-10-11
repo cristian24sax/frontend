@@ -1,21 +1,34 @@
-import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import { NextRequest, NextResponse } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
-    const url = req.nextUrl.clone();
-    // Redirige a /dashboard si el path es /
-    if (url.pathname === '/') {
-      url.pathname = '/dashboard';
+export default function middleware(req: NextRequest) {
+  const token = req.cookies.get("token");
+  const url = req.nextUrl.clone();
+
+  if (!token) {
+    if (!url.pathname.startsWith("/auth/login")) {
+      url.pathname = "/auth/login";
       return NextResponse.redirect(url);
     }
-    return NextResponse.next();
-  },
-  {
-    // Puedes personalizar el comportamiento aquí
   }
-);
+
+  if (token && url.pathname.startsWith("/auth/login")) {
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if (token && url.pathname === "/") {
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if (!token && !url.pathname.startsWith("/dashboard") && !url.pathname.startsWith("/auth/login")) {
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*"],
+  matcher: ["/", "/dashboard/:path*", "/auth/login", "/((?!_next|favicon.ico|public|api).*)"],
 };
