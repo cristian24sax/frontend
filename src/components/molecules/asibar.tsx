@@ -17,6 +17,7 @@ const AsideBar = () => {
   const [userRole, setUserRole] = useState<string | null>(null); // Añadido para manejar el rol del usuario
   const router = useRouter();
   const { setInputValueMenu } = useBearStore();
+  const { setNameMenu } = useBearStore();
 
   const menus: Menu[] = [
     {
@@ -48,7 +49,7 @@ const AsideBar = () => {
       roles: ["admin"],
     },
     {
-      name: "Programar dinamica",
+      name: "Programar practicas",
       link: "/dashboard/dinamic",
       icon: AiOutlineHeart,
       margin: true,
@@ -95,8 +96,9 @@ const AsideBar = () => {
 
   menus[0].submenus = submenu;
 
-  const handleClick = (id: number) => {
+  const handleClick = (id: number, nombre:string) => {
     setInputValueMenu(id);
+    setNameMenu(nombre);
   };
 
   return (
@@ -132,7 +134,7 @@ const AsideBar = () => {
                   <div className="ml-12">
                     {menu?.submenus?.map((sub) => (
                       <Link href={"/dashboard"} key={sub.id}>
-                        <div key={sub.id} onClick={() => handleClick(sub.id)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
+                        <div key={sub.id} onClick={() => handleClick(sub.id, sub.name)} className="block text-sm p-2 hover:bg-gray-700 rounded-md">
                           <span
                             style={{ transitionDelay: `${i + 3}00ms` }}
                             className={`whitespace-pre duration-500 ${!open ? "opacity-0 translate-x-28 overflow-hidden" : "opacity-100 translate-x-0"}`}

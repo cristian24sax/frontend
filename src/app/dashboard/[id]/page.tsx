@@ -31,16 +31,11 @@ export default async function DetailCourse({ params }: any) {
 
 
           <div className="flex justify-end w-full mb-8 gap-4">
-            <Link href={`/dashboard/videos/${id}`}>
-              <button className="flex justify-content items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">
-                <DownloadIcon className="h-4 w-4 mr-2" />
-                Descargar video
-              </button>
-            </Link>
+            
             <Link href={`/dashboard/videos/${id}`}>
               <button className="flex justify-content items-center outline outline-1 rounded-sm border-spacing-0 p-1 py-0 text-gray-500 hover:text-blue-700">
                 <PlayIcon className="h-4 w-4 mr-2" />
-                Ver video
+                Ver videos
               </button>
             </Link>
           </div>

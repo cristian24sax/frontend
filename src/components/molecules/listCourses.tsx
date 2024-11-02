@@ -44,7 +44,7 @@ export default function ListCoursesComponent({ courses, error, slidesPerView }: 
   }, []);
 
   return (
-    <div className="my-4 pb-3">
+    <div className="mb-4">
       {error && <p className="text-red-500">Error: {error}</p>}
       {!error && (
         <div
@@ -53,20 +53,20 @@ export default function ListCoursesComponent({ courses, error, slidesPerView }: 
           onMouseLeave={() => setShowArrows(false)} // Oculta las flechas al salir el mouse
         >
           <Swiper
-            onSwiper={(swiper) => (swiperRef.current = swiper)} // Establece la referencia correctamente
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
             spaceBetween={20}
-            slidesPerView={slidesPerView}
+            slidesPerView={slidesPerView} // Este valor puede ser 5 para asegurar que quepan 5 cards
             breakpoints={{
               1024: {
-                slidesPerView: 3,
+                slidesPerView: 5, // Ajustado para mostrar 5 cards
                 spaceBetween: 30,
               },
               768: {
-                slidesPerView: 2,
+                slidesPerView: 3, // Puedes mantenerlo así para pantallas más pequeñas
                 spaceBetween: 20,
               },
               640: {
-                slidesPerView: 1,
+                slidesPerView: 2,
                 spaceBetween: 10,
               },
               0: {
@@ -75,6 +75,7 @@ export default function ListCoursesComponent({ courses, error, slidesPerView }: 
               },
             }}
           >
+
             {courses?.map((course: DataCourses) => (
               <SwiperSlide key={course.id}>
                 <Link href={`/dashboard/${course.id}`} passHref>

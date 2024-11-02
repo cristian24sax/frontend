@@ -1,7 +1,7 @@
 "use client";
 import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { Toaster, toast } from "sonner";
-import { Trash2Icon } from "./tableVideo";
+import { Trash2Icon, EditIcon, AddIcon } from "./tableVideo";
 import { Evaluation, Survey } from "@/interfaces/video.interface";
 
 interface Props {
@@ -19,7 +19,7 @@ interface NewCourse {
   id?: number;
   name?: string;
   description?: string;
-  previousImage?: File | null;
+  previousImage?: File | string | null; // Ahora puede ser un string o File
   lessonOrder?: number;
   objectives?: string;
   bibliography?: string;
@@ -82,6 +82,73 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
   const [selectedFileSurvey, setSelectedFileSurvey] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRefSurvey = useRef<HTMLInputElement | null>(null);
+
+  const [editClase, setEditClase] = useState(false);
+
+  const openModalClase = () => {
+    setShowModal(true);
+    setEditClase(false);
+    setNewCourse({
+      courseProjectId: 0,
+      courseId: 0,
+      userCreatorId: 0,
+      id: 0,
+      name: "",
+      description: "",
+      previousImage: null,
+      lessonOrder: 0,
+      objectives: "",
+      bibliography: "",
+      cvInstructor: "",
+      instructorName: "",
+      instructorProfession: "",
+      imagePreview: null,
+    });
+  }
+  // Función para abrir el modo de edición
+  const handleEdit = async (lesson: any) => {
+    
+    setShowModal(true)
+    setEditClase(true);
+    try {
+      
+      setLoading(true); // Inicia la carga
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/${lesson.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Error: ${resp.status} ${resp.statusText}`);
+      }
+
+      const { data } = await resp.json();
+      
+      setNewCourse({
+        courseProjectId: 0,
+        courseId: 0,
+        userCreatorId: 0,
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        previousImage: data.previousImage,
+        lessonOrder: data.lessonOrder,
+        objectives: data.objectives,
+        bibliography: data.bibliography,
+        cvInstructor: data.cvInstructor,
+        instructorName: data.instructorName,
+        instructorProfession: data.instructorProfession,
+        imagePreview: data.previousImage,
+      });
+    } catch (error) {
+      console.error("Error sending data to endpoint:", error);
+      toast.error("Ocurrio un error al publicar");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Función para manejar la subida del archivo
   const handleExamUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +252,6 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         a.href = url;
         a.download = selectedFile.name;
         a.click();
-        console.log(a);
         URL.revokeObjectURL(url); // Liberar el recurso
       }
     }
@@ -344,32 +410,57 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
 
   const handleSaveCourse = async (e: any) => {
     e.preventDefault();
-    const newCourseId = courses.length + 1;
+  
     const newCourseData: NewCourse = {
       ...newCourse,
       courseProjectId: variable.courseProjectId || courseProjectId,
       courseId: variable.id || idCourse,
       userCreatorId: id,
-      id: newCourseId,
     };
-
+  
     const formData = new FormData();
+  
+    // Verificar si previousImage es una URL
+    if (newCourseData.previousImage && typeof newCourseData.previousImage === "string" && newCourseData.previousImage.startsWith("http")) {
+      try {
+        // Descargar la imagen y convertirla en un blob binario
+        const response = await fetch(newCourseData.previousImage);
+        if (response.ok) {
+          const blob = await response.blob();
+          formData.append("previousImage", blob, "image.jpg"); // Usa un nombre y tipo apropiado
+        } else {
+          console.error("Error fetching image:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching image:", error);
+      }
+    } else if (newCourseData.previousImage) {
+      // Si ya es un archivo (binario), lo agregamos directamente
+      formData.append("previousImage", newCourseData.previousImage);
+    }
+  
+    // Agregar el resto de los campos
     for (const key in newCourseData) {
-      if (Object.prototype.hasOwnProperty.call(newCourseData, key)) {
+      if (Object.prototype.hasOwnProperty.call(newCourseData, key) && key !== "previousImage") {
         formData.append(key, (newCourseData as any)[key]);
       }
     }
+  
     try {
       setLoading(true); // Inicia la carga
-      await sendVideo(formData);
+      if (editClase) {
+        await updateClase(formData);
+      } else {
+        await createClase(formData);
+        setCourses([...courses, newCourseData]);
+      }
       setShowModal(false);
     } catch (error) {
       console.error("Error saving course:", error);
     } finally {
       setLoading(false); // Termina la carga
     }
-
-    setCourses([...courses, newCourseData]);
+  
     setShowModal(false);
     setNewCourse({
       courseProjectId: 0,
@@ -388,8 +479,32 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
       imagePreview: null,
     });
   };
+  
+  
 
-  async function sendVideo(formData: FormData) {
+  async function updateClase(formData: FormData) {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const { data } = await response.json();
+      setResponse(data.id);
+      setRefresh((prev) => !prev);
+    } catch (error) {
+      console.error("Error sending data to endpoint:", error);
+    }
+  }
+
+  async function createClase(formData: FormData) {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson`, {
         method: "POST",
@@ -763,7 +878,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
         {!isEdit && isContent}
         <div className="flex items-center justify-between my-4">
           {(variable.id !== 0 || isEdit) && (
-            <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={() => setShowModal(true)}>
+            <button className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center cursor-pointer" onClick={openModalClase}>
               <div className="p-4 text-center flex">
                 <PlusIcon className="w-8 h-8 text-primary" />
                 <p className="text-lg font-semibold text-primary">Agregar Clase</p>
@@ -778,25 +893,47 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
             <div className="flex items-center justify-center h-64 bg-white w-full border border-dashed border-blue-500 text-blue text-2xl font-semibold rounded-lg shadow-md">No hay cursos creados</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {courses.map((course) => (
-                <div key={course.name} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img src={course.imagePreview || (course.previousImage as any)} alt={course.name} className="w-full h-48 object-cover" />
-                  <div className="p-4 flex">
+              {courses.map((lesson) => (
+                <div key={lesson.name} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <img src={lesson.imagePreview || (lesson.previousImage as any)} alt={lesson.name} className="w-full h-48 object-cover" />
+                  <div className="p-4 flex flex-col">
+                    {/* Información del curso */}
                     <div className="flex-grow">
-                      <h3 className="text-lg font-semibold">{course.classNumber || `${course["lessonOrder"]}.`}{course.name}</h3>
-                      <div>{course.instructorName || course["nameLessonOrder"]}</div>
-                      <div>{course.instructorProfession}</div>
+                      <h3 className="text-lg font-semibold">
+                        {lesson.classNumber || `${lesson["lessonOrder"]}.`} {lesson.name}
+                      </h3>
+                      <div>{lesson.instructorName || lesson["nameLessonOrder"]}</div>
+                      <div>{lesson.instructorProfession}</div>
                     </div>
-                    <div className="">
-                      <button className="p-2 text-red-600 hover:text-red-900" onClick={() => handleDeleteClass(course)}>
-                        <Trash2Icon className="h-4 w-4" />
-                        <span className="sr-only">Eliminar</span>
-                      </button>
-                      <button className="mt-4 px-2 py-1 bg-blue-500 text-white rounded-sm hover:bg-blue-700" onClick={() => openModal(course)}>
-                        +
+
+                    {/* Botones debajo de la información */}
+                    <div className="flex flex-row items-center justify-between">
+                      <div className="flex space-x-2"> {/* Espaciado entre Editar y Eliminar */}
+                        <button className="p-2" onClick={() => handleEdit(lesson)}>
+                          <EditIcon className="h-6 w-6 text-green-500" />
+                          <span className="sr-only">Editar</span>
+                        </button>
+
+                        <button
+                          className="p-2 text-red-600 hover:text-red-900"
+                          onClick={() => handleDeleteClass(lesson)}
+                        >
+                          <Trash2Icon className="h-6 w-6" />
+                          <span className="sr-only">Eliminar</span>
+                        </button>
+                      </div>
+
+                      <button
+                        className="px-2 py-1 text-white" // Añade un color de fondo si lo deseas
+                        onClick={() => openModal(lesson)}
+                      >
+                        <AddIcon className="h-6 w-6" />
+                        <span className="sr-only">Agregar</span>
                       </button>
                     </div>
+
                   </div>
+
                 </div>
               ))}
             </div>
@@ -1001,7 +1138,7 @@ export default function NewCourse({ isEdit, nameEdit, courseProjectId, id: idCou
               </div>
             )}
             <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6 mx-auto my-8 mb-16 h-full overflow-y-auto">
-              <h2 className="text-2xl font-semibold mb-4">Nueva clase</h2>
+              <h2 className="text-2xl font-semibold mb-4">{`${isEdit ? "Editar clase" : "Nueva clase"}`}</h2>
               <form onSubmit={handleSaveCourse} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="mb-4">
                   <h4>Nombre</h4>

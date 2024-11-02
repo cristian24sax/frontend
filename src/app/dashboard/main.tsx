@@ -13,11 +13,14 @@ interface props {
 }
 export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchingCourses }: props) {
   const { showCoursesFilter, coursesFilter, error, isLoading, search, valueMenu } = useFilterCourses(); // Incluir isLoading
-  const { setInputValue, setInputValueMenu } = useBearStore();
+  const { setInputValue, setInputValueMenu, setNameMenu, nameMenu } = useBearStore();
   const handleClick = () => {
     setInputValue("");
     setInputValueMenu(null);
+    setNameMenu("");
+    setNameMenu(null);
   };
+
   return (
     <>
       <header className="shadow-sm sticky top-0 flex justify-between items-center h-16 rounded-sm bg-stone-100 p-4 z-10">
@@ -32,7 +35,7 @@ export default function Main({ dataMostViewed, dataUpdoadCourses, dataUserWatchi
       {(showCoursesFilter && search !== "") || valueMenu !== null ? (
         <>
           <div className="flex gap-4 mt-5">
-            <h3 className="text-xl font-bold">Cursos filtrados</h3>
+            <h3 className="text-xl font-bold">Cursos filtrados de {nameMenu ? `${nameMenu}` : `${search}`}</h3>
             <div className="px-2 py-1 bg-black text-white text-sm rounded-full" onClick={handleClick}>
               X
             </div>

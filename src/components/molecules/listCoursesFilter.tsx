@@ -1,24 +1,27 @@
 import { DataCourses } from "@/interfaces/dataCourses";
 import "swiper/css";
-import { Swiper, SwiperSlide } from "swiper/react";
 import Link from "next/link";
 import { CardCourseComponent } from "../atoms/cardCourse";
-interface props {
+
+interface Props {
   courses: DataCourses[];
   error: any;
 }
-export default function ListCoursesFilterComponent({ courses, error }: props) {
+
+export default function ListCoursesFilterComponent({ courses, error }: Props) {
   return (
-    <div className="flex flex-wrap gap-4 my-4 min-w-full pb-3">
-      {error && <p>Error: {error}</p>}
+    <div className="flex flex-wrap gap-4 my-4 min-w-full pb-3"> {/* Flex para el layout y sin centrado */}
+      {error && <p className="text-red-500">Error: {error}</p>}
       {!error && (
-        <div className="flex flex-wrap gap-4 ">
+        <>
           {courses.map((item: DataCourses) => (
-            <Link href={`/dashboard/${item.id}`} key={item.id}>
-              <CardCourseComponent course={item} />
-            </Link>
+            <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4" key={item.id}> {/* Ancho responsivo */}
+              <Link href={`/dashboard/${item.id}`}>
+                <CardCourseComponent course={item} />
+              </Link>
+            </div>
           ))}
-        </div>
+        </>
       )}
     </div>
   );

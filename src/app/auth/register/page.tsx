@@ -77,7 +77,9 @@ const RegisterPage = () => {
       return;
     }
 
-    toast.success("Verifica tu correo o SPAM para validar tu cuenta.");
+    toast.success("Verifica tu correo o SPAM para validar tu cuenta.", {
+      duration: 8000, // Duración en milisegundos (8000 ms = 8 segundos)
+    });
 
     setFisrtName("");
     setLastName("");
