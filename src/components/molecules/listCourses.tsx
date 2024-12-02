@@ -44,7 +44,7 @@ export default function ListCoursesComponent({ courses, error, slidesPerView }: 
   }, []);
 
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       {error && <p className="text-red-500">Error: {error}</p>}
       {!error && (
         <div
