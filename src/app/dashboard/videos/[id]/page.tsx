@@ -8,6 +8,7 @@ import { Evaluation, Survey, VideoData } from "@/interfaces/video.interface";
 import CommentModalClient from "@/components/atoms/buttonModal";
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
+import PlanesModule from "@/components/organisms/tariff";
 
 export default function VideosCourses({ params }: any) {
   const dataUser = localStorage.getItem("dataUser");
@@ -18,7 +19,15 @@ export default function VideosCourses({ params }: any) {
   const [lessonSurvey, setLessonSurvey] = useState<Survey | null>({ id: null, name: "", url: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false); // Estado de carga
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
 
+  const showPremiun = () => {
+    setIsModalOpen(true); // Abrir el modal
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); // Cerrar el modal
+  };
   // Efecto que se ejecuta al inicio para obtener los videos
   useEffect(() => {
     console.log(params);
@@ -39,15 +48,15 @@ export default function VideosCourses({ params }: any) {
     if (lessonEvaluation && lessonEvaluation.url) {
       const response = await fetch(lessonEvaluation.url);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const blob = await response.blob(); // Convertir la respuesta en un Blob
       const url = URL.createObjectURL(blob); // Crear una URL para el Blob
 
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = lessonEvaluation.name; // Establecer el nombre para la descarga
-      a.target = '_blank'; // Abrir en una nueva pestaña
+      a.target = "_blank"; // Abrir en una nueva pestaña
       document.body.appendChild(a);
       a.click(); // Simula un clic en el enlace
       document.body.removeChild(a); // Limpia el DOM
@@ -59,15 +68,15 @@ export default function VideosCourses({ params }: any) {
     if (lessonSurvey && lessonSurvey.url) {
       const response = await fetch(lessonSurvey.url);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const blob = await response.blob(); // Convertir la respuesta en un Blob
       const url = URL.createObjectURL(blob); // Crear una URL para el Blob
 
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = lessonSurvey.name; // Establecer el nombre para la descarga
-      a.target = '_blank'; // Abrir en una nueva pestaña
+      a.target = "_blank"; // Abrir en una nueva pestaña
       document.body.appendChild(a);
       a.click(); // Simula un clic en el enlace
       document.body.removeChild(a); // Limpia el DOM
@@ -87,7 +96,7 @@ export default function VideosCourses({ params }: any) {
           lessonId: lessonId,
           file: file,
           userResolveId: id,
-          LessonSatisfactionSurveyId: lessonSurvey?.id
+          LessonSatisfactionSurveyId: lessonSurvey?.id,
         };
 
         const formData = new FormData();
@@ -110,7 +119,6 @@ export default function VideosCourses({ params }: any) {
         }
 
         toast.success("Encuesta enviada correctamente");
-
       } catch (error) {
         console.error("Error sending data to endpoint:", error);
         setLoading(false);
@@ -210,7 +218,9 @@ export default function VideosCourses({ params }: any) {
         </div>
         <div className="bg-gray-100 w-full md:w-[19rem] overflow-auto flex flex-col">
           <div className="bg-blue-950 h-16 flex justify-center items-center">
-            <div className="text-white border border-collapse p-1 rounded-lg text-sm">Conviértete a Premiun</div>
+            <div className="text-white border border-collapse p-1 rounded-lg text-sm cursor-pointer" onClick={showPremiun}>
+              Conviértete a Premiun
+            </div>
           </div>
           <div className="mt-1">
             <div className="bg-blue-500 text-white p-2 w-2/5 rounded-sm ml-3">Excelencia</div>
@@ -228,21 +238,26 @@ export default function VideosCourses({ params }: any) {
           <div>
             <h2 className="text-lg font-medium mb-4">Cursos</h2>
             <div>
-              {videoData.map((item: VideoData, index: number) => ( // Cambia aquí para usar videoData
-                <OptionsComponent item={item} key={item.id} index={index} length={videoData.length} />
-              ))}
+              {videoData.map(
+                (
+                  item: VideoData,
+                  index: number // Cambia aquí para usar videoData
+                ) => (
+                  <OptionsComponent item={item} key={item.id} index={index} length={videoData.length} />
+                )
+              )}
             </div>
           </div>
           <div className="flex flex-col p-4 text-sm gap-2">
-            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFile}>Descargar examen y solucionario</button>
-            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFileSurvey}>Descargar encuesta de satisfacción</button>
+            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFile}>
+              Descargar examen y solucionario
+            </button>
+            <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full" onClick={handleDownloadFileSurvey}>
+              Descargar encuesta de satisfacción
+            </button>
             <label className="bg-blue-950 text-white rounded-sm p-2 text-left w-full cursor-pointer">
               <span>Enviar encuesta</span>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleSurveyUpload}
-              />
+              <input type="file" className="hidden" onChange={handleSurveyUpload} />
             </label>
             <Link href={`/dashboard/dinamic`}>
               <button className="bg-blue-950 text-white rounded-sm p-2 text-left w-full">Programar dinámica</button>
@@ -251,10 +266,16 @@ export default function VideosCourses({ params }: any) {
         </div>
         <Toaster richColors position="bottom-right" />
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white w-[90%]  max-h-[100vh] p-6 rounded shadow-lg overflow-y-auto">
+            <PlanesModule onClose={closeModal} />
+          </div>
+        </div>
+      )}
     </>
   );
 }
-
 
 function MaximizeIcon(props: any) {
   return (
