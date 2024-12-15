@@ -1,9 +1,9 @@
 import "./globals.css";
-
 import Navbar from "@/components/Navbar";
 import SessionAuthProvider from "@/context/SessionAuthProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Head from "next/head"; // Importar Head
 
 const inter = Inter({ subsets: ["latin"] });
 

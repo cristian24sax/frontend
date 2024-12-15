@@ -218,9 +218,10 @@ export default function VideosCourses({ params }: any) {
         </div>
         <div className="bg-gray-100 w-full md:w-[19rem] overflow-auto flex flex-col">
           <div className="bg-blue-950 h-16 flex justify-center items-center">
-            <div className="text-white border border-collapse p-1 rounded-lg text-sm cursor-pointer" onClick={showPremiun}>
+            <div className="text-white border border-collapse p-1 rounded-lg text-sm cursor-pointer" style={{ margin: '10px' }} onClick={showPremiun}>
               Conviértete a Premiun
             </div>
+
           </div>
           <div className="mt-1">
             <div className="bg-blue-500 text-white p-2 w-2/5 rounded-sm ml-3">Excelencia</div>
