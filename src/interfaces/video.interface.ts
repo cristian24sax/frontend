@@ -14,6 +14,7 @@ export interface VideoData {
   hasBeenPlayed: boolean;
   isLastVideoSeen: boolean;
   secondsElapsed: number;
+  hasSubscriptionPlan: boolean;
 }
 
 export interface Evaluation {

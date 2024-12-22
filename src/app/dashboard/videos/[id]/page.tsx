@@ -130,7 +130,7 @@ export default function VideosCourses({ params }: any) {
   };
 
   async function fetchCourseVideo(lessonId: number) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?LessonId=${lessonId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?LessonId=${lessonId}&UserPersonId=${id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

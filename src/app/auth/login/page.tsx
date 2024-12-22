@@ -8,6 +8,8 @@ import { Toaster, toast } from "sonner";
 import { decryptData, encryptData } from "./utils/encrydata";
 import Cookies from "js-cookie";
 
+
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

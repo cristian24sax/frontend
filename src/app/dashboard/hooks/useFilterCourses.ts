@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { DataCourses } from "@/interfaces/dataCourses";
 import { useBearStore } from "@/store/ui";
+import Cookies from "js-cookie";
+//import axiosInstance from '../../auth/login/utils/axiosInterceptor';
 
 interface UseFilterCoursesResult {
   showCoursesFilter: boolean;
@@ -25,6 +27,22 @@ export const useFilterCourses = (): UseFilterCoursesResult => {
 
   // Estado para manejar el debounce
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  // useEffect(() => {
+  //   const interval = setInterval(async () => {
+  //     try {
+  //       const token = Cookies.get("token");
+  //       if (token) {
+  //         await axiosInstance.get("/validate-token");
+  //       }
+  //     } catch (error) {
+  //       console.error("Session validation failed", error);
+  //     }
+  //   }, 5 * 60 * 1000); // Validar cada 5 minutos
+  
+  //   return () => clearInterval(interval);
+  // }, []);
+  
 
   // Función para llamar al endpoint
   const fetchFilterCourses = async () => {

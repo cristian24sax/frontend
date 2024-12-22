@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+
 function headers() {
   const { token } = cookiesService();
 
@@ -17,11 +18,32 @@ function cookiesService() {
   const id = cookiesList.get("idUser")?.value;
   return { token, id };
 }
+
 export async function fetchNewlyUploadedCourses() {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/newly-uploaded`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+    
+    if (response.status === 401) {
+
+    }
+
+    throw new Error(`Error al obtener los datos: ${response.status} - ${errorText}`);
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
+
 export async function fetchMostViewedCourses() {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/most-viewed`, headersFetch);
@@ -47,6 +69,8 @@ export async function fetchCourseVideo(id: number) {
 }
 export async function fetchCourseList() {
   const headersFetch = headers();
+  console.log("TOKEN ENV2");
+  console.log(headersFetch);
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, headersFetch);
   return response.json();
 }
