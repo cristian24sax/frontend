@@ -29,9 +29,8 @@ export async function fetchNewlyUploadedCourses() {
     
     if (response.status === 401) {
 
+      return await 401;
     }
-
-    throw new Error(`Error al obtener los datos: ${response.status} - ${errorText}`);
   }
 
   try {
@@ -47,38 +46,137 @@ export async function fetchNewlyUploadedCourses() {
 export async function fetchMostViewedCourses() {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/most-viewed`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401;
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
 
 export async function fetchUserWatchingCourses() {
   const { id } = cookiesService();
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/user-watching?UserPersonId=${id}`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401;
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
 export async function fetchCourseDetail(id: number) {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/get?LessonId=${id}`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401 ;  // Retorna un objeto con el código de estado 401
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
 export async function fetchCourseVideo(id: number) {
   const headersFetch = headers();
   const { id: idUser } = cookiesService();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=${idUser}&LessonId=${id}`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401;
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
 export async function fetchCourseList() {
   const headersFetch = headers();
-  console.log("TOKEN ENV2");
-  console.log(headersFetch);
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401;
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
 export async function fetchCourseListAdmin() {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list/admin`, headersFetch);
-  return response.json();
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error en la respuesta:", errorText);
+
+    if (response.status === 401) {
+      return 401;
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (err) {
+    const rawResponse = await response.text();
+    console.error("Respuesta no es un JSON válido:", rawResponse);
+    throw new Error("La respuesta no es un JSON válido");
+  }
 }
+
 export async function fetchQuestionListAdmin() {
   const headersFetch = headers();
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/question/list`, headersFetch);
