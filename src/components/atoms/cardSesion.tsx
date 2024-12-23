@@ -12,18 +12,19 @@ export default function SesionComponent() {
   const handleLogOut = () => {
     Cookies.remove("token");
     Cookies.remove("idUser");
+    localStorage.clear();
     signIn();
   };
 
   return (
     <main className="relative">
       <section onClick={() => setShow(!show)} className="flex gap-2 items-center cursor-pointer">
-        <span className="hidden sm:block"> 
+        <span className="hidden sm:block">
           {session?.user?.data?.firstName} {session?.user?.data?.lastName}
         </span>
         <Image src={avatarUrl} alt={`Avatar de ${session?.user?.data?.firstName}`} width={40} height={40} unoptimized={true} className="rounded-md" />
       </section>
-      
+
       {/* Menú de cierre de sesión */}
       {show && (
         <div className="absolute right-0 mt-2 min-w-[70px] w-[90%] sm:w-[80%] bg-stone-100 p-2 text-[13px] shadow-lg rounded-md">
@@ -39,4 +40,4 @@ export default function SesionComponent() {
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

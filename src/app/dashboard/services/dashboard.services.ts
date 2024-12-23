@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 function headers() {
   const { token } = cookiesService();
@@ -6,8 +7,7 @@ function headers() {
   return {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}
-`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   };
@@ -19,162 +19,196 @@ function cookiesService() {
   return { token, id };
 }
 
-export async function fetchNewlyUploadedCourses() {
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/newly-uploaded`, headersFetch);
+async function fetchWithInterceptor(url: any, options?: any) {
+  const { token } = cookiesService();
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
-    
-    if (response.status === 401) {
-
-      return await 401;
-    }
-  }
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    ...options?.headers,
+  };
 
   try {
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401) {
+      console.error("No autorizado, limpiando sesión y redirigiendo al login...");
+      redirect("/auth/login");
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error en la respuesta: ${errorText}`);
+    }
+
     return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
+  } catch (error: any) {
+    console.error("Error en la solicitud:", error.message);
+    throw error;
   }
 }
 
+export async function fetchNewlyUploadedCourses() {
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/newly-uploaded`, headersFetch);
+
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
+
+  //   if (response.status === 401) {
+  //     return await 401;
+  //   }
+  // }
+
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/newly-uploaded`);
+}
 
 export async function fetchMostViewedCourses() {
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/most-viewed`, headersFetch);
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/most-viewed`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401;
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401;
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/most-viewed`);
 }
 
 export async function fetchUserWatchingCourses() {
   const { id } = cookiesService();
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/user-watching?UserPersonId=${id}`, headersFetch);
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/user-watching?UserPersonId=${id}`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401;
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401;
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/lesson/user-watching?UserPersonId=${id}`);
 }
 
 export async function fetchCourseDetail(id: number) {
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/get?LessonId=${id}`, headersFetch);
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/get?LessonId=${id}`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401 ;  // Retorna un objeto con el código de estado 401
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401; // Retorna un objeto con el código de estado 401
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/get?LessonId=${id}`);
 }
 
 export async function fetchCourseVideo(id: number) {
-  const headersFetch = headers();
+  // const headersFetch = headers();
   const { id: idUser } = cookiesService();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=${idUser}&LessonId=${id}`, headersFetch);
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=${idUser}&LessonId=${id}`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401;
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401;
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/lesson/video/list?UserPersonId=${idUser}&LessonId=${id}`);
 }
 
 export async function fetchCourseList() {
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, headersFetch);
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401;
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401;
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list`);
 }
 
 export async function fetchCourseListAdmin() {
-  const headersFetch = headers();
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list/admin`, headersFetch);
+  // const headersFetch = headers();
+  // const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list/admin`, headersFetch);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error en la respuesta:", errorText);
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Error en la respuesta:", errorText);
 
-    if (response.status === 401) {
-      return 401;
-    }
-  }
+  //   if (response.status === 401) {
+  //     return 401;
+  //   }
+  // }
 
-  try {
-    return await response.json();
-  } catch (err) {
-    const rawResponse = await response.text();
-    console.error("Respuesta no es un JSON válido:", rawResponse);
-    throw new Error("La respuesta no es un JSON válido");
-  }
+  // try {
+  //   return await response.json();
+  // } catch (err) {
+  //   const rawResponse = await response.text();
+  //   console.error("Respuesta no es un JSON válido:", rawResponse);
+  //   throw new Error("La respuesta no es un JSON válido");
+  // }
+  return fetchWithInterceptor(`${process.env.NEXT_PUBLIC_BACKEND_URL}/course/list/admin`);
 }
 
 export async function fetchQuestionListAdmin() {
@@ -188,4 +222,4 @@ export async function fetchSurveysResolve() {
   return response.json();
 }
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = "force-dynamic";
