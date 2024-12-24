@@ -233,7 +233,7 @@ export default function VideosCourses({ params }: any) {
             </div>
             <div className="flex grow justify-center items-center bg-blue-950 text-white text-xs p-1">
               <WarningIcon className="h-4 w-4 mr-2" />
-              Reportar un problema
+              Reportar un problema / Recomendación
             </div>
           </div>
           <div>

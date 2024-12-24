@@ -106,8 +106,8 @@ const PlanesModule = ({ onClose }: { onClose: () => void }) => {
     checkout?.LoadForm({
       authorization: tokenIziPay.data.token,
       keyRSA: 'RSA',
-      callbackResponse: (response:any) => {
-        if(response.code == "00"){
+      callbackResponse: (response: any) => {
+        if (response.code == "00") {
           onClose();
         }
       },
@@ -119,11 +119,22 @@ const PlanesModule = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="relative container mx-auto p-6 bg-white rounded shadow-lg">
-      <button className="absolute top-2 right-2 text-gray-600 hover:text-gray-900" onClick={onClose} aria-label="Cerrar">
+      <button
+        className="absolute top-2 right-12 bg-blue-950 text-white px-3 py-1 rounded hover:bg-blue-900"
+        onClick={() => console.log('Botón adicional presionado')}
+      >
+        Sugerir curso nuevo
+      </button>
+      <button
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+        onClick={onClose}
+        aria-label="Cerrar"
+      >
         ✖
       </button>
+
       <h1 className="text-center text-2xl font-bold mb-4">Módulo Planes</h1>
-      <p className="text-center text-lg mb-6">Todas las semanas se subirán dos cursos nuevos</p>
+      <p className="text-center text-lg mb-6">Cada mes se subirán 2 cursos nuevos</p>
       <div className="overflow-x-auto">
         <table className="table-auto w-full border-collapse border border-gray-300 text-center">
           <thead>
